@@ -1,54 +1,38 @@
 package lab.maxb.dark_api.Controllers
+import lab.maxb.dark_api.DB.DAO.RecognitionTaskDAO
+import lab.maxb.dark_api.DB.DAO.UserDAO
 import lab.maxb.dark_api.Model.RecognitionTask
-import lab.maxb.dark_api.Model.User
+import lab.maxb.dark_api.Model.RecognitionTaskDTOCreation
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 import java.util.*
 
+
 @RestController
 @RequestMapping("task")
-class RecognitionTaskController {
-    private val tasks = mutableListOf(
-        RecognitionTask(
-            setOf("стул", "кресло", "диван"),
-            listOf("image1", "image2"),
-            User("Max", 0),
-            true
-        ),
-        RecognitionTask(
-            setOf("стол", "стол на трёх ножках", "столешница"),
-            listOf("image3", "image4"),
-            User("Max", 0),
-            false
-        ),
-        RecognitionTask(
-            setOf("стул1", "кресло1", "диван1"),
-            listOf("image11", "image21"),
-            User("Max", 0),
-            true
-        ),
-        RecognitionTask(
-            setOf("стол2", "стол на трёх ножках2", "столешница2"),
-            listOf("image32", "image42"),
-            User("Max", 0),
-            false
-        ),
-    )
+class RecognitionTaskController @Autowired constructor(
+    private val recognitionTaskDAO: RecognitionTaskDAO,
+    private val userDAO: UserDAO,
+) {
 
     @GetMapping("/all")
-    fun getAllRecognitionTasks(): List<RecognitionTask>?
-        = tasks.sortedBy { it.reviewed }
+    fun getAllRecognitionTasks()
+        = recognitionTaskDAO.findByOrderByReviewedAsc()
 
     @GetMapping("/byReview")
-    fun getAllRecognitionTasksByReview(@RequestParam isReviewed: Boolean): List<RecognitionTask>?
-        = tasks.filter { it.reviewed == isReviewed }
+    fun getAllRecognitionTasksByReview(@RequestParam isReviewed: Boolean)
+        = recognitionTaskDAO.findByReviewedEquals(isReviewed)
 
     @GetMapping("/byId")
     fun getRecognitionTask(@RequestParam id: UUID): RecognitionTask?
-        = tasks.find { it.id == id }
+        = recognitionTaskDAO.findByIdEquals(id)
 
     @PostMapping("/add")
-    fun addRecognitionTask(@RequestBody task: RecognitionTask)
-        = if (tasks.add(task)) task
-          else null
+    fun addRecognitionTask(@RequestBody task: RecognitionTaskDTOCreation)
+        = task.owner_id?.let { owner_id ->
+            userDAO.findByIdEquals(owner_id)?.let {
+                recognitionTaskDAO.save(task.toRecognitionTask(it)).id
+            }
+        }
 
 }
