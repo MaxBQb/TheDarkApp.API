@@ -11,11 +11,15 @@ group = "lab.maxb"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
+
 repositories {
     mavenCentral()
 }
 
 dependencies {
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("io.jsonwebtoken:jjwt:0.9.1")
+    implementation("javax.xml.bind:jaxb-api")
     implementation("org.springframework.boot:spring-boot-starter-web:2.5.6")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.5.6")
     implementation("com.h2database:h2:1.4.200")
@@ -38,3 +42,4 @@ tasks.withType<Test> {
 tasks.getByName<Jar>("jar") {
     enabled = false
 }
+

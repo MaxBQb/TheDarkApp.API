@@ -1,9 +1,12 @@
 package lab.maxb.dark_api.DB
 
 import lab.maxb.dark_api.DB.DAO.RecognitionTaskDAO
+import lab.maxb.dark_api.DB.DAO.UserCredentialsDAO
 import lab.maxb.dark_api.DB.DAO.UserDAO
 import lab.maxb.dark_api.Model.RecognitionTask
 import lab.maxb.dark_api.Model.User
+import lab.maxb.dark_api.Model.UserCredentials
+import lab.maxb.dark_api.Security.Services.AuthService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -14,10 +17,36 @@ import org.springframework.stereotype.Component
 class DBPrepopulator @Autowired constructor(
     private val recognitionTaskDAO: RecognitionTaskDAO,
     private val userDAO: UserDAO,
+    private val authService: AuthService,
 ) : ApplicationRunner {
 
     override fun run(args: ApplicationArguments) {
-        val user = userDAO.save(User("Max", 0))
+        val user = userDAO.save(User(
+            "Max",
+            12,
+            authService.signup(AuthService.AuthRequest(
+                "User",
+                "123"
+            ))!!.id
+        ))
+
+        userDAO.save(User(
+            "ModeratorZou",
+            id=authService.signup(AuthService.AuthRequest(
+                "Moderator",
+                "321"
+            ))!!.id
+        ))
+
+        userDAO.save(User(
+            "Admin",
+            id=authService.signup(AuthService.AuthRequest(
+                "Admin",
+                "111"
+            ))!!.id
+        ))
+
+
         recognitionTaskDAO.save(RecognitionTask(
             setOf("стул", "кресло", "диван"),
             listOf("image1", "image2"),
