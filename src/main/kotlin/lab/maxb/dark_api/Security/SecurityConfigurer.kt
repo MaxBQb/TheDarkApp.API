@@ -28,7 +28,7 @@ class SecurityConfigurer @Autowired constructor(
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
             .authorizeRequests()
-            .antMatchers("/auth/**")
+            .antMatchers("/auth/**",  "/docs/**")
             .permitAll()
             .anyRequest()
             .authenticated()

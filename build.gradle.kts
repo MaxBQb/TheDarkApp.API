@@ -18,6 +18,9 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springdoc:springdoc-openapi-ui:1.5.13")
+    implementation("org.springdoc:springdoc-openapi-security:1.5.13")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.5.13")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api")
     implementation("org.springframework.boot:spring-boot-starter-web:2.5.6")
