@@ -30,9 +30,9 @@ class RecognitionTask(
 
 interface RecognitionTaskDTOView {
     fun getNames(): Set<String>?
-    @Value("#{target.owner.id}")
-    fun getOwnerId(): UUID?
     fun getImages(): List<String>?
+    @Value("#{target.owner.id}")
+    fun getOwnerId(): UUID
     fun getReviewed(): Boolean
     fun getId(): UUID
 }
@@ -40,7 +40,7 @@ interface RecognitionTaskDTOView {
 class RecognitionTaskDTOCreation(
     var names: Set<String>? = null,
     var images: List<String>? = null,
-    var owner_id: UUID? = null,
+    var owner_id: UUID,
 ) {
     fun toRecognitionTask(owner: User)
         = RecognitionTask(names, images, owner)

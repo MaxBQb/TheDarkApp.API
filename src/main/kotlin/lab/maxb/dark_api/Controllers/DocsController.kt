@@ -11,7 +11,7 @@ import org.springframework.web.servlet.view.RedirectView
 
 @Controller
 class DocsController {
-    @GetMapping("docs")
+    @GetMapping("docs/")
     fun redirectToDocs(attributes: RedirectAttributes)
         = RedirectView("/docs/swagger-ui.html").also {
             attributes.addFlashAttribute("flashAttribute", "redirectWithRedirectView")
