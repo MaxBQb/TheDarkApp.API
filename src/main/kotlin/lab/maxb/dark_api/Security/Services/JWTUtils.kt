@@ -34,7 +34,7 @@ class JWTUtils {
         = extractExpiration(token).before(Date())
 
     fun generateToken(userDetails: UserDetails): String = createToken(
-        hashMapOf(ROLE_KEY to userDetails.authorities.first().authority),
+        hashMapOf(ROLE_KEY to getRoleFromAuthority(userDetails.authorities.first().authority).name),
         userDetails.username
     )
 

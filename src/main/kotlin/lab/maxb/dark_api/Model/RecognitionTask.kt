@@ -1,6 +1,5 @@
 package lab.maxb.dark_api.Model
 
-import org.springframework.beans.factory.annotation.Value
 import java.util.*
 import javax.persistence.*
 
@@ -26,22 +25,4 @@ class RecognitionTask(
     companion object {
         const val MAX_IMAGES_COUNT = 6
     }
-}
-
-interface RecognitionTaskDTOView {
-    fun getNames(): Set<String>?
-    fun getImages(): List<String>?
-    @Value("#{target.owner.id}")
-    fun getOwnerId(): UUID
-    fun getReviewed(): Boolean
-    fun getId(): UUID
-}
-
-class RecognitionTaskDTOCreation(
-    var names: Set<String>? = null,
-    var images: List<String>? = null,
-    var owner_id: UUID,
-) {
-    fun toRecognitionTask(owner: User)
-        = RecognitionTask(names, images, owner)
 }

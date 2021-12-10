@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component
 class DBPrepopulator @Autowired constructor(
     private val recognitionTaskDAO: RecognitionTaskDAO,
     private val userDAO: UserDAO,
+    private val userCredentialsDAO: UserCredentialsDAO,
     private val authService: AuthService,
 ) : ApplicationRunner {
 
@@ -34,9 +35,14 @@ class DBPrepopulator @Autowired constructor(
             "ModeratorZou",
             id=authService.signup(AuthService.AuthRequest(
                 "Moderator",
-                "321"
+                "321",
             ))!!.id
         ))
+
+        userCredentialsDAO.findByLoginEquals("Moderator", UserCredentials::class.java)?.let {
+            it.role = UserCredentials.Role.MODERATOR
+            userCredentialsDAO.save(it)
+        }
 
         userDAO.save(User(
             "Admin",
@@ -46,6 +52,10 @@ class DBPrepopulator @Autowired constructor(
             ))!!.id
         ))
 
+        userCredentialsDAO.findByLoginEquals("Admin", UserCredentials::class.java)!!.let {
+            it.role = UserCredentials.Role.ADMINISTRATOR
+            userCredentialsDAO.save(it)
+        }
 
         recognitionTaskDAO.save(RecognitionTask(
             setOf("стул", "кресло", "диван"),

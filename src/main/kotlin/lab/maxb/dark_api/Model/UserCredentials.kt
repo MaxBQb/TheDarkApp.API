@@ -38,7 +38,14 @@ interface UserCredentialsView {
     fun getRole(): UserCredentials.Role
 }
 
-fun UserCredentials.Role.isUser() = when(this) {
-    UserCredentials.Role.USER, UserCredentials.Role.PREMIUM_USER -> true
+val UserCredentials.Role.isUser get() = when(this) {
+    UserCredentials.Role.USER,
+    UserCredentials.Role.PREMIUM_USER -> true
+    else -> false
+}
+
+val UserCredentials.Role.hasControlPrivileges get() = when(this) {
+    UserCredentials.Role.MODERATOR,
+    UserCredentials.Role.ADMINISTRATOR -> true
     else -> false
 }
