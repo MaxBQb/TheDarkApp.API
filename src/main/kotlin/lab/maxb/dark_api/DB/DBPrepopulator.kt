@@ -32,6 +32,14 @@ class DBPrepopulator @Autowired constructor(
         ))
 
         userDAO.save(User(
+            "Yet Another User",
+            id=authService.signup(AuthService.AuthRequest(
+                "User2",
+                "123",
+            ))!!.id
+        ))
+
+        userDAO.save(User(
             "ModeratorZou",
             id=authService.signup(AuthService.AuthRequest(
                 "Moderator",

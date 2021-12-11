@@ -1,15 +1,13 @@
 package lab.maxb.dark_api.Controllers
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import lab.maxb.dark_api.DB.DAO.RecognitionTaskDAO
+import lab.maxb.dark_api.DB.DAO.UserCredentialsDAO
 import lab.maxb.dark_api.DB.DAO.UserDAO
+import lab.maxb.dark_api.Model.*
 import lab.maxb.dark_api.Model.POJO.RecognitionTaskCreationDTO
 import lab.maxb.dark_api.Model.POJO.RecognitionTaskFullView
-import lab.maxb.dark_api.Model.RecognitionTask
-import lab.maxb.dark_api.Model.hasControlPrivileges
-import lab.maxb.dark_api.Model.isUser
 import lab.maxb.dark_api.SECURITY_SCHEME
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
@@ -24,12 +22,17 @@ import javax.annotation.security.RolesAllowed
 class RecognitionTaskController @Autowired constructor(
     private val recognitionTaskDAO: RecognitionTaskDAO,
     private val userDAO: UserDAO,
+    private val userCredentialsDAO: UserCredentialsDAO,
 ) {
 
     @GetMapping("/all")
     fun getAllRecognitionTasks(auth: Authentication)
         = if (auth.role.isUser)
-            recognitionTaskDAO.findByReviewedTrue()
+            recognitionTaskDAO.findByReviewedTrueAndOwnerIdNot(
+                userCredentialsDAO.findByLoginEquals(auth.name,
+                    UserCredentialsView::class.java
+                )!!.user_id
+            )
         else if (auth.role.hasControlPrivileges)
             recognitionTaskDAO.findByOrderByReviewedAsc()
         else null
@@ -44,19 +47,17 @@ class RecognitionTaskController @Autowired constructor(
 
     @RolesAllowed("MODERATOR")
     @GetMapping("mark/{id}")
-    fun markRecognitionTask(auth: Authentication,
-                            @PathVariable id: UUID,
+    fun markRecognitionTask(@PathVariable id: UUID,
                             @RequestParam isAllowed: Boolean)
-        = if (isAllowed)
-            recognitionTaskDAO.findByIdEquals(id, RecognitionTask::class.java)?.let {
-                it.reviewed = true
+        = recognitionTaskDAO.findByIdEquals(id, RecognitionTask::class.java)?.let {
+            if (!isAllowed && !it.reviewed)
+                recognitionTaskDAO.deleteById(id)
+            else {
+                it.reviewed = isAllowed
                 recognitionTaskDAO.save(it)
-                true
-            } ?: false
-        else {
-            recognitionTaskDAO.deleteById(id)
+            }
             true
-        }
+        } ?: false
 
 
     @PostMapping("/add")

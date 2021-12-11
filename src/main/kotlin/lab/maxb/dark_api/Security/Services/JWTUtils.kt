@@ -7,6 +7,7 @@ import lab.maxb.dark_api.Model.UserCredentials
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 @Service
 class JWTUtils {
@@ -53,7 +54,7 @@ class JWTUtils {
         }
 
     companion object {
-        const val tokenDuration = 1000 * 60 * 60 * 24
+        val tokenDuration = TimeUnit.DAYS.toMillis(1)
         private const val ROLE_KEY = "role"
         private const val SECRET_KEY = "Dak-tron-gSere-tcgh-f7e7-8hg-f78-6fj-t789-e4j0-4few-89d56-789-4ed5-fj8e3-0w"
         // TODO: Re-Generate and hide SECRET_KEY

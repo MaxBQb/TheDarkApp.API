@@ -71,8 +71,8 @@ class AuthService@Autowired constructor(
         userDetailsService.loadUserByUsername(login)?.let {
             AuthResponse(
                 jwtUtils.generateToken(it),
-                credentials.getUserId(),
-                credentials.getRole(),
+                credentials.user_id,
+                credentials.role,
             )
         }
     }

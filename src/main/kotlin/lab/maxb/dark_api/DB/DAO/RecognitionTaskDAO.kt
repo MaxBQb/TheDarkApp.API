@@ -10,5 +10,5 @@ interface RecognitionTaskDAO : JpaRepository<RecognitionTask?, UUID?> {
     fun findByIdEqualsAndReviewedTrue(id: UUID): RecognitionTaskFullView?
     fun <T> findByIdEquals(id: UUID, type: Class<T>): T?
     fun findByOrderByReviewedAsc(): List<RecognitionTaskListView>
-    fun findByReviewedTrue(): List<RecognitionTaskListView>
+    fun findByReviewedTrueAndOwnerIdNot(ownerId: UUID): List<RecognitionTaskListView>
 }

@@ -33,9 +33,9 @@ class UserCredentials(
 }
 
 interface UserCredentialsView {
-    @Value("#{target.user.id}")
-    fun getUserId(): UUID
-    fun getRole(): UserCredentials.Role
+    val user_id: UUID
+    @Value("#{target.user.id}") get
+    val role: UserCredentials.Role
 }
 
 val UserCredentials.Role.isUser get() = when(this) {
