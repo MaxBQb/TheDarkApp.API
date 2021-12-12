@@ -9,7 +9,7 @@ class RecognitionTask(
     var names: Set<String>? = null,
 
     @ElementCollection
-    var images: List<String>? = null,
+    var images: MutableList<String>? = null,
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     var owner: User? = null,

@@ -67,25 +67,25 @@ class DBPrepopulator @Autowired constructor(
 
         recognitionTaskDAO.save(RecognitionTask(
             setOf("стул", "кресло", "диван"),
-            listOf("image1", "image2"),
+            mutableListOf("image1", "image2"),
             user,
             true
         ))
         recognitionTaskDAO.save(RecognitionTask(
             setOf("стол", "стол на трёх ножках", "столешница"),
-            listOf("image3", "image4"),
+            mutableListOf("image3", "image4"),
             user,
             false
         ))
         recognitionTaskDAO.save(RecognitionTask(
             setOf("стул1", "кресло1", "диван1"),
-            listOf("image11", "image21"),
+            mutableListOf("image11", "image21"),
             user,
             true
         ))
         recognitionTaskDAO.save(RecognitionTask(
             setOf("стол2", "стол на трёх ножках2", "столешница2"),
-            listOf("image32", "image42"),
+            mutableListOf("image32", "image42"),
             user,
             false
         ))
