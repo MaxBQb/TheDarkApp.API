@@ -35,7 +35,8 @@ class SecurityConfigurer @Autowired constructor(
             .and()
             .sessionManagement()
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-        http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter::class.java)
+        http.addFilterBefore(jwtRequestFilter,
+            UsernamePasswordAuthenticationFilter::class.java)
     }
 
     @Bean

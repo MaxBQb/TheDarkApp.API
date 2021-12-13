@@ -15,7 +15,7 @@ import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class AuthService@Autowired constructor(
+class AuthService @Autowired constructor(
     private val authenticationManager: AuthenticationManager,
     private var passwordEncoder: PasswordEncoder,
     private val userDetailsService: UserDetailsServiceImpl,
@@ -33,7 +33,8 @@ class AuthService@Autowired constructor(
             )
         } catch (e: Exception) {
             if (e is BadCredentialsException)
-                LoggerFactory.getLogger(AuthController::class.java).warn("Incorrect username or password")
+                LoggerFactory.getLogger(AuthController::class.java)
+                    .warn("Incorrect username or password")
             else
                 e.printStackTrace()
             return null
@@ -60,14 +61,16 @@ class AuthService@Autowired constructor(
                 )
             )
         } catch (e: BadCredentialsException) {
-            LoggerFactory.getLogger(AuthController::class.java).warn("Incorrect username or password")
+            LoggerFactory.getLogger(AuthController::class.java)
+                .warn("Incorrect username or password")
             return null
         }
         return getAuthResponse(request.login)
     }
 
     private fun getAuthResponse(login: String)
-            = userCredentialsDAO.findByLoginEquals(login, UserCredentialsView::class.java)?.let { credentials ->
+            = userCredentialsDAO.findByLoginEquals(login,
+        UserCredentialsView::class.java)?.let { credentials ->
         userDetailsService.loadUserByUsername(login)?.let {
             AuthResponse(
                 jwtUtils.generateToken(it),

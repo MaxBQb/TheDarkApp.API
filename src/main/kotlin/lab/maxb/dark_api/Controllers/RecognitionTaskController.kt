@@ -124,6 +124,22 @@ class RecognitionTaskController @Autowired constructor(
             )).id
         }
 
+    @GetMapping("/solve/{id}")
+    fun solveRecognitionTask(
+        auth: Authentication,
+        @PathVariable id: UUID,
+        @RequestParam answer: String
+    ): Boolean? = userDAO.findByIdEquals(getUserId(auth))?.let { user ->
+        recognitionTaskDAO.findByIdEquals(id, RecognitionTask::class.java)?.let { task ->
+            if (task.owner!!.id == user.id || !task.reviewed)
+                return null
+            return if (answer in task.names!!) {
+                recognitionTaskDAO.deleteById(task.id)
+                true
+            } else false
+        }
+    }
+
     private fun getUserId(auth: Authentication)
         = userCredentialsDAO.findByLoginEquals(auth.name,
             UserCredentialsView::class.java
