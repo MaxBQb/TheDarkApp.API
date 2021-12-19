@@ -28,7 +28,7 @@ class DBPrepopulator @Autowired constructor(
             authService.signup(AuthService.AuthRequest(
                 "User",
                 "123"
-            ))!!.id
+            ))?.id ?: return
         ))
 
         userDAO.save(User(
@@ -36,7 +36,7 @@ class DBPrepopulator @Autowired constructor(
             id=authService.signup(AuthService.AuthRequest(
                 "User2",
                 "123",
-            ))!!.id
+            ))?.id ?: return
         ))
 
         userDAO.save(User(
@@ -44,7 +44,7 @@ class DBPrepopulator @Autowired constructor(
             id=authService.signup(AuthService.AuthRequest(
                 "Moderator",
                 "321",
-            ))!!.id
+            ))?.id ?: return
         ))
 
         userCredentialsDAO.findByLoginEquals("Moderator", UserCredentials::class.java)?.let {
@@ -57,7 +57,7 @@ class DBPrepopulator @Autowired constructor(
             id=authService.signup(AuthService.AuthRequest(
                 "Admin",
                 "111"
-            ))!!.id
+            ))?.id ?: return
         ))
 
         userCredentialsDAO.findByLoginEquals("Admin", UserCredentials::class.java)!!.let {
