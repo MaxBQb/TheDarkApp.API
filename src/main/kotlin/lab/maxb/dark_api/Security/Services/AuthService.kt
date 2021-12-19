@@ -53,19 +53,7 @@ class AuthService @Autowired constructor(
             UserCredentials.Role.USER
         ))
 
-        try {
-            authenticationManager.authenticate(
-                UsernamePasswordAuthenticationToken(
-                    request.login,
-                    request.password,
-                )
-            )
-        } catch (e: BadCredentialsException) {
-            LoggerFactory.getLogger(AuthController::class.java)
-                .warn("Incorrect username or password")
-            return null
-        }
-        return getAuthResponse(request.login)
+        return login(request)
     }
 
     private fun getAuthResponse(login: String)

@@ -60,7 +60,7 @@ class RecognitionTaskController @Autowired constructor(
         else null
 
     @RolesAllowed("MODERATOR")
-    @GetMapping("mark/{id}")
+    @PatchMapping("mark/{id}")
     fun markRecognitionTask(@PathVariable id: UUID,
                             @RequestParam isAllowed: Boolean)
         = recognitionTaskDAO.findByIdEquals(id, RecognitionTask::class.java)?.let {
@@ -74,10 +74,10 @@ class RecognitionTaskController @Autowired constructor(
         } ?: false
 
     @PostMapping("{id}/image", consumes = [MULTIPART_FORM_DATA_VALUE])
-    fun addImage(
+    fun uploadImage(
         auth: Authentication,
         @PathVariable id: UUID,
-        @RequestParam("file") file: MultipartFile
+        @RequestParam file: MultipartFile
     ): UUID? {
         val task = recognitionTaskDAO.findByIdEqualsAndOwner_IdEquals(
             id, getUserId(auth)
