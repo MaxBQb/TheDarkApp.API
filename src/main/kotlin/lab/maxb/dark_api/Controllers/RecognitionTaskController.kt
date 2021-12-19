@@ -87,7 +87,7 @@ class RecognitionTaskController @Autowired constructor(
         val id = getUUID()
         val fileName = id.toString()
         try {
-            saveFile("images/", fileName, file)
+            saveFile("images", fileName, file)
             task.images!!.add(fileName)
             recognitionTaskDAO.save(task)
         } catch (e: IOException) { return null }
@@ -97,7 +97,7 @@ class RecognitionTaskController @Autowired constructor(
     @GetMapping("/image/{path}")
     fun downloadImage(@PathVariable path: String): ResponseEntity<Resource?> {
         return try {
-            val file = File("images/${StringUtils.cleanPath(path)}")
+            val file = File("images", StringUtils.cleanPath(path))
             val headers = HttpHeaders()
             headers.add("Cache-Control", "no-cache, no-store, must-revalidate")
             headers.add("Pragma", "no-cache")
