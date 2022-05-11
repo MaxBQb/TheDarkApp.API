@@ -20,7 +20,7 @@ class RecognitionTask(
     @Id
     @GeneratedValue
     @Column(nullable = false)
-    var id: UUID = getUUID()
+    var id: UUID = randomUUID
 ) {
     companion object {
         const val MAX_IMAGES_COUNT = 6

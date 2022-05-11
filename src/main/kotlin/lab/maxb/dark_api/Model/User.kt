@@ -15,5 +15,5 @@ class User(
     @Id
     @GeneratedValue
     @Column(nullable = false)
-    var id: UUID = getUUID(),
+    var id: UUID = randomUUID,
 )

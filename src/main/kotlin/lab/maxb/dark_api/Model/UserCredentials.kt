@@ -21,7 +21,7 @@ class UserCredentials(
     @Id
     @GeneratedValue
     @Column(nullable = false)
-    var id: UUID = getUUID()
+    var id: UUID = randomUUID
 ) {
     enum class Role {
         ADMINISTRATOR,
