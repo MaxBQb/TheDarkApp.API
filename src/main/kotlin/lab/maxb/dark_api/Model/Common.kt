@@ -6,6 +6,7 @@ import java.util.*
 import kotlin.text.Charsets.UTF_8
 
 fun getUUID(): UUID = UUID.randomUUID()
+inline val randomUUID get() = UUID.randomUUID()
 
 fun getTimestampNow() = System.currentTimeMillis() / 1000L
 

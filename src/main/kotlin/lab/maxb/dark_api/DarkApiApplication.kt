@@ -1,11 +1,11 @@
 package lab.maxb.dark_api
 
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
-import io.swagger.v3.oas.annotations.enums.SecuritySchemeIn
 import io.swagger.v3.oas.annotations.enums.SecuritySchemeType
 import io.swagger.v3.oas.annotations.info.Info
 import io.swagger.v3.oas.annotations.security.SecurityScheme
 import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
 
 const val SECURITY_SCHEME = "Dark API Security"
@@ -21,6 +21,7 @@ const val SECURITY_SCHEME = "Dark API Security"
     scheme = "bearer",
     bearerFormat = "JWT"
 )
+@ConfigurationPropertiesScan
 class DarkApiApplication
 
 fun main(args: Array<String>) {
