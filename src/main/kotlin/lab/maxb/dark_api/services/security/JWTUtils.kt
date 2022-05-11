@@ -1,9 +1,9 @@
-package lab.maxb.dark_api.Security.Services
+package lab.maxb.dark_api.services.security
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
-import lab.maxb.dark_api.Model.UserCredentials
+import lab.maxb.dark_api.model.UserCredentials
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
 import java.util.*

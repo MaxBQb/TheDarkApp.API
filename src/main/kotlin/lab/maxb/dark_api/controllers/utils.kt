@@ -1,9 +1,8 @@
-package lab.maxb.dark_api.Controllers
+package lab.maxb.dark_api.controllers
 
-import lab.maxb.dark_api.Security.Services.getRoleFromAuthority
+import lab.maxb.dark_api.services.security.getRoleFromAuthority
 import org.springframework.security.core.Authentication
 import org.springframework.web.multipart.MultipartFile
-import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.nio.file.StandardCopyOption

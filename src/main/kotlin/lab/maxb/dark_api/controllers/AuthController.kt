@@ -1,6 +1,6 @@
-package lab.maxb.dark_api.Controllers
+package lab.maxb.dark_api.controllers
 
-import lab.maxb.dark_api.Security.Services.AuthService
+import lab.maxb.dark_api.services.security.AuthService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping

@@ -1,4 +1,4 @@
-package lab.maxb.dark_api.Model.POJO
+package lab.maxb.dark_api.model.pojo
 
 import org.springframework.beans.factory.annotation.Value
 import java.util.*

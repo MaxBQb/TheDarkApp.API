@@ -1,6 +1,6 @@
 package lab.maxb.dark_api.services
 
-import lab.maxb.dark_api.Model.randomUUID
+import lab.maxb.dark_api.model.randomUUID
 import org.springframework.util.StringUtils
 import org.springframework.web.multipart.MultipartFile
 import java.awt.image.BufferedImage

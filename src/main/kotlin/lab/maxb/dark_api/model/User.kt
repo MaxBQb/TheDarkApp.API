@@ -1,4 +1,4 @@
-package lab.maxb.dark_api.Model
+package lab.maxb.dark_api.model
 
 import java.util.*
 import javax.persistence.*

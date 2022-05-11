@@ -1,14 +1,12 @@
-package lab.maxb.dark_api.Security
+package lab.maxb.dark_api.security
 
 
-import lab.maxb.dark_api.Model.UserCredentials
-import lab.maxb.dark_api.Security.Services.JWTUtils
-import lab.maxb.dark_api.Security.Services.UserDetailsServiceImpl
-import lab.maxb.dark_api.Security.Services.getRoleFromAuthority
-import lab.maxb.dark_api.Security.Services.toAuthority
+import lab.maxb.dark_api.services.security.JWTUtils
+import lab.maxb.dark_api.services.security.UserDetailsServiceImpl
+import lab.maxb.dark_api.services.security.getRoleFromAuthority
+import lab.maxb.dark_api.services.security.toAuthority
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource
 import org.springframework.stereotype.Component

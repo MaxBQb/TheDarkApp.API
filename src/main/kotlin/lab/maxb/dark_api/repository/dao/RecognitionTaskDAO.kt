@@ -1,8 +1,8 @@
-package lab.maxb.dark_api.DB.DAO
+package lab.maxb.dark_api.repository.dao
 
-import lab.maxb.dark_api.Model.POJO.RecognitionTaskFullView
-import lab.maxb.dark_api.Model.POJO.RecognitionTaskListView
-import lab.maxb.dark_api.Model.RecognitionTask
+import lab.maxb.dark_api.model.pojo.RecognitionTaskFullView
+import lab.maxb.dark_api.model.pojo.RecognitionTaskListView
+import lab.maxb.dark_api.model.RecognitionTask
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 

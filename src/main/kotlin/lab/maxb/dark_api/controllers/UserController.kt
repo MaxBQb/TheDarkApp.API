@@ -1,7 +1,7 @@
-package lab.maxb.dark_api.Controllers
+package lab.maxb.dark_api.controllers
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import lab.maxb.dark_api.DB.DAO.UserDAO
-import lab.maxb.dark_api.Model.User
+import lab.maxb.dark_api.repository.dao.UserDAO
+import lab.maxb.dark_api.model.User
 import lab.maxb.dark_api.SECURITY_SCHEME
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping

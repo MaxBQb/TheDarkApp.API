@@ -1,6 +1,6 @@
-package lab.maxb.dark_api.Security
+package lab.maxb.dark_api.security
 
-import lab.maxb.dark_api.Security.Services.UserDetailsServiceImpl
+import lab.maxb.dark_api.services.security.UserDetailsServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.security.authentication.AuthenticationManager

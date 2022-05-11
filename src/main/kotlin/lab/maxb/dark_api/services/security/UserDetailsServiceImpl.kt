@@ -1,9 +1,8 @@
-package lab.maxb.dark_api.Security.Services
+package lab.maxb.dark_api.services.security
 
-import lab.maxb.dark_api.DB.DAO.UserCredentialsDAO
-import lab.maxb.dark_api.Model.UserCredentials
+import lab.maxb.dark_api.repository.dao.UserCredentialsDAO
+import lab.maxb.dark_api.model.UserCredentials
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetailsService

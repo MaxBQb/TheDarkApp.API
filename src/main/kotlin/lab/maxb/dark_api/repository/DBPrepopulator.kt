@@ -1,12 +1,12 @@
-package lab.maxb.dark_api.DB
+package lab.maxb.dark_api.repository
 
-import lab.maxb.dark_api.DB.DAO.RecognitionTaskDAO
-import lab.maxb.dark_api.DB.DAO.UserCredentialsDAO
-import lab.maxb.dark_api.DB.DAO.UserDAO
-import lab.maxb.dark_api.Model.RecognitionTask
-import lab.maxb.dark_api.Model.User
-import lab.maxb.dark_api.Model.UserCredentials
-import lab.maxb.dark_api.Security.Services.AuthService
+import lab.maxb.dark_api.repository.dao.RecognitionTaskDAO
+import lab.maxb.dark_api.repository.dao.UserCredentialsDAO
+import lab.maxb.dark_api.repository.dao.UserDAO
+import lab.maxb.dark_api.model.RecognitionTask
+import lab.maxb.dark_api.model.User
+import lab.maxb.dark_api.model.UserCredentials
+import lab.maxb.dark_api.services.security.AuthService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -25,7 +25,8 @@ class DBPrepopulator @Autowired constructor(
         val user = userDAO.save(User(
             "Max",
             12,
-            authService.signup(AuthService.AuthRequest(
+            authService.signup(
+                AuthService.AuthRequest(
                 "User",
                 "123"
             ))?.id ?: return
@@ -33,7 +34,8 @@ class DBPrepopulator @Autowired constructor(
 
         userDAO.save(User(
             "Yet Another User",
-            id=authService.signup(AuthService.AuthRequest(
+            id=authService.signup(
+                AuthService.AuthRequest(
                 "User2",
                 "123",
             ))?.id ?: return
@@ -41,7 +43,8 @@ class DBPrepopulator @Autowired constructor(
 
         userDAO.save(User(
             "ModeratorZou",
-            id=authService.signup(AuthService.AuthRequest(
+            id=authService.signup(
+                AuthService.AuthRequest(
                 "Moderator",
                 "321",
             ))?.id ?: return
@@ -54,7 +57,8 @@ class DBPrepopulator @Autowired constructor(
 
         userDAO.save(User(
             "Admin",
-            id=authService.signup(AuthService.AuthRequest(
+            id=authService.signup(
+                AuthService.AuthRequest(
                 "Admin",
                 "111"
             ))?.id ?: return

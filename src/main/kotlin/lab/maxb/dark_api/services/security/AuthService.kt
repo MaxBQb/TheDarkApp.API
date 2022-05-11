@@ -1,10 +1,10 @@
-package lab.maxb.dark_api.Security.Services
+package lab.maxb.dark_api.services.security
 
-import lab.maxb.dark_api.Controllers.AuthController
-import lab.maxb.dark_api.DB.DAO.UserCredentialsDAO
-import lab.maxb.dark_api.DB.DAO.UserDAO
-import lab.maxb.dark_api.Model.UserCredentials
-import lab.maxb.dark_api.Model.UserCredentialsView
+import lab.maxb.dark_api.controllers.AuthController
+import lab.maxb.dark_api.repository.dao.UserCredentialsDAO
+import lab.maxb.dark_api.repository.dao.UserDAO
+import lab.maxb.dark_api.model.UserCredentials
+import lab.maxb.dark_api.model.UserCredentialsView
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationManager
@@ -49,7 +49,7 @@ class AuthService @Autowired constructor(
         userCredentialsDAO.save(UserCredentials(
             request.login,
             passwordEncoder.encode(request.password),
-            userDAO.save(lab.maxb.dark_api.Model.User()),
+            userDAO.save(lab.maxb.dark_api.model.User()),
             UserCredentials.Role.USER
         ))
 

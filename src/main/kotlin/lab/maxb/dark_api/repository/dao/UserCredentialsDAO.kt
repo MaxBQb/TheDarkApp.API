@@ -1,6 +1,6 @@
-package lab.maxb.dark_api.DB.DAO
+package lab.maxb.dark_api.repository.dao
 
-import lab.maxb.dark_api.Model.UserCredentials
+import lab.maxb.dark_api.model.UserCredentials
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
