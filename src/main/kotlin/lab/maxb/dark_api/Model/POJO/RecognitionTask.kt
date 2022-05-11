@@ -25,6 +25,10 @@ interface RecognitionTaskFullView {
     var id: UUID
 }
 
+interface RecognitionTaskImages {
+    var images: List<String>?
+}
+
 class RecognitionTaskCreationDTO(
     var names: Set<String>
 )

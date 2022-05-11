@@ -4,11 +4,17 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import lab.maxb.dark_api.DB.DAO.RecognitionTaskDAO
 import lab.maxb.dark_api.DB.DAO.UserCredentialsDAO
 import lab.maxb.dark_api.DB.DAO.UserDAO
-import lab.maxb.dark_api.Model.*
+import lab.maxb.dark_api.DB.DAO.findByIdEquals
 import lab.maxb.dark_api.Model.POJO.RecognitionTaskCreationDTO
 import lab.maxb.dark_api.Model.POJO.RecognitionTaskFullView
+import lab.maxb.dark_api.Model.POJO.RecognitionTaskImages
+import lab.maxb.dark_api.Model.RecognitionTask
 import lab.maxb.dark_api.Model.RecognitionTask.Companion.MAX_IMAGES_COUNT
+import lab.maxb.dark_api.Model.UserCredentialsView
+import lab.maxb.dark_api.Model.hasControlPrivileges
+import lab.maxb.dark_api.Model.isUser
 import lab.maxb.dark_api.SECURITY_SCHEME
+import lab.maxb.dark_api.services.ImageService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.Resource
@@ -18,15 +24,10 @@ import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.core.Authentication
-import org.springframework.util.StringUtils
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
-import java.io.File
 import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Paths
 import java.util.*
-import javax.annotation.security.RolesAllowed
 
 
 @RestController
@@ -37,6 +38,7 @@ class RecognitionTaskController @Autowired constructor(
     private val recognitionTaskDAO: RecognitionTaskDAO,
     private val userDAO: UserDAO,
     private val userCredentialsDAO: UserCredentialsDAO,
+    private val imageService: ImageService
 ) {
 
     @GetMapping("/all")
@@ -56,60 +58,64 @@ class RecognitionTaskController @Autowired constructor(
         = if (auth.role.isUser)
             recognitionTaskDAO.findByIdEqualsAndReviewedTrue(id)
         else if (auth.role.hasControlPrivileges)
-            recognitionTaskDAO.findByIdEquals(id, RecognitionTaskFullView::class.java)
+            recognitionTaskDAO.findByIdEquals<RecognitionTaskFullView>(id)
         else null
 
-    @RolesAllowed("MODERATOR")
-    @PatchMapping("mark/{id}")
-    fun markRecognitionTask(@PathVariable id: UUID,
-                            @RequestParam isAllowed: Boolean)
-        = recognitionTaskDAO.findByIdEquals(id, RecognitionTask::class.java)?.let {
-            if (!isAllowed && !it.reviewed)
+    @PatchMapping("mark/{id}/{isAllowed}")
+    fun markRecognitionTask(auth: Authentication,
+                            @PathVariable id: UUID,
+                            @PathVariable isAllowed: Boolean): Boolean {
+        if (!auth.role.hasControlPrivileges)
+            return false
+        return recognitionTaskDAO.findByIdEquals(id, RecognitionTask::class.java)?.let {
+            if (!isAllowed && !it.reviewed) {
+                recognitionTaskDAO.findByIdEquals<RecognitionTaskImages>(id)?.images?.forEach { path ->
+                    runCatching { imageService.delete(path) }
+                }
                 recognitionTaskDAO.deleteById(id)
-            else {
+            } else {
                 it.reviewed = isAllowed
                 recognitionTaskDAO.save(it)
             }
             true
         } ?: false
+    }
 
     @PostMapping("{id}/image", consumes = [MULTIPART_FORM_DATA_VALUE])
     fun uploadImage(
         auth: Authentication,
         @PathVariable id: UUID,
         @RequestParam file: MultipartFile
-    ): UUID? {
+    ): String? {
         val task = recognitionTaskDAO.findByIdEqualsAndOwner_IdEquals(
             id, getUserId(auth)
         ) ?: return null
         if (task.images!!.count() >= MAX_IMAGES_COUNT)
             return null
-        val id = getUUID()
-        val fileName = id.toString()
-        try {
-            saveFile("images", fileName, file)
+
+        return try {
+            val fileName = imageService.save(file)
             task.images!!.add(fileName)
             recognitionTaskDAO.save(task)
-        } catch (e: IOException) { return null }
-        return id
+            fileName
+        } catch (e: IOException) {
+            e.printStackTrace()
+            null
+        }
     }
 
     @GetMapping("/image/{path}")
-    fun downloadImage(@PathVariable path: String): ResponseEntity<Resource?> {
-        return try {
-            val file = File("images", StringUtils.cleanPath(path))
-            val headers = HttpHeaders()
-            headers.add("Cache-Control", "no-cache, no-store, must-revalidate")
-            headers.add("Pragma", "no-cache")
-            headers.add("Expires", "0")
-
-            val path = Paths.get(file.absolutePath)
-            val resource = ByteArrayResource(Files.readAllBytes(path))
-            ResponseEntity.ok().headers(headers).contentLength(file.length())
-                .contentType(MediaType.parseMediaType("application/octet-stream")).body(resource)
-        } catch (e: java.nio.file.NoSuchFileException) {
-            ResponseEntity.noContent().build()
+    fun downloadImage(@PathVariable path: String): ResponseEntity<Resource> {
+        val file = imageService.get(path) ?: return ResponseEntity.noContent().build()
+        val headers = HttpHeaders().apply {
+            add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
+            add(HttpHeaders.PRAGMA, "no-cache")
+            add(HttpHeaders.EXPIRES, "0")
+            add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$path\"")
         }
+        val resource = ByteArrayResource(file.readAllBytes())
+        return ResponseEntity.ok().headers(headers).contentLength(resource.contentLength())
+            .contentType(MediaType.parseMediaType("application/octet-stream")).body(resource)
     }
 
     @PostMapping("/add")
@@ -130,10 +136,10 @@ class RecognitionTaskController @Autowired constructor(
         @PathVariable id: UUID,
         @RequestParam answer: String
     ): Boolean? = userDAO.findByIdEquals(getUserId(auth))?.let { user ->
-        recognitionTaskDAO.findByIdEquals(id, RecognitionTask::class.java)?.let { task ->
+        recognitionTaskDAO.findByIdEquals<RecognitionTask>(id)?.let { task ->
             if (task.owner!!.id == user.id || !task.reviewed)
-                return null
-            return if (answer in task.names!!) {
+                null
+            else if (answer in task.names!!) {
                 recognitionTaskDAO.deleteById(task.id)
                 true
             } else false

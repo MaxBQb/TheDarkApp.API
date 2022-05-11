@@ -23,8 +23,8 @@ class AuthController @Autowired constructor(
     fun signup(@RequestBody body: AuthService.AuthRequest)
         = wrapResponse(authService.signup(body))
 
-    private fun wrapResponse(response: AuthService.AuthResponse?)
-        = response?.let {
-            ResponseEntity.ok(response)
+    private fun wrapResponse(response: AuthService.AuthResponse?):
+            ResponseEntity<AuthService.AuthResponse> = response?.let {
+            ResponseEntity.ok(it)
         } ?: ResponseEntity.badRequest().build()
 }
