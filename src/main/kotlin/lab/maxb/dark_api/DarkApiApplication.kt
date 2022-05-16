@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.ConfigurationPropertiesScan
 import org.springframework.boot.runApplication
+import org.springframework.context.annotation.Configuration
+import org.springframework.data.web.config.EnableSpringDataWebSupport
 
 const val SECURITY_SCHEME = "Dark API Security"
 
@@ -27,3 +29,7 @@ class DarkApiApplication
 fun main(args: Array<String>) {
     runApplication<DarkApiApplication>(*args)
 }
+
+@Configuration
+@EnableSpringDataWebSupport
+class WebConfiguration

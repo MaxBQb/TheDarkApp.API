@@ -18,6 +18,7 @@ import lab.maxb.dark_api.services.ImageService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.core.io.Resource
+import org.springframework.data.domain.Pageable
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
@@ -42,13 +43,13 @@ class RecognitionTaskController @Autowired constructor(
 ) {
 
     @GetMapping("/all")
-    fun getAllRecognitionTasks(auth: Authentication)
+    fun getAllRecognitionTasks(auth: Authentication, pageable: Pageable)
         = if (auth.role.isUser)
             recognitionTaskDAO.findByReviewedTrueAndOwnerIdNot(
                 getUserId(auth)
             )
         else if (auth.role.hasControlPrivileges)
-            recognitionTaskDAO.findByOrderByReviewedAsc()
+            recognitionTaskDAO.findByOrderByReviewedAsc(pageable)
         else null
 
     @GetMapping("/{id}")
