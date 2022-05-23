@@ -36,4 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 /images/
-/src/main/resources/FirebaseAccountKey.json
+/src/main/resources/secret.properties

@@ -4,13 +4,18 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import lab.maxb.dark_api.model.UserCredentials
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.properties.ConfigurationProperties
+import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.stereotype.Service
+import java.time.Duration
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 @Service
-class JWTUtils {
+class JWTUtils @Autowired constructor(
+    private val jwtConfig: JWTConfig,
+) {
     fun extractUsername(token: String): String = extractClaim(token) {
         obj: Claims -> obj.subject
     }
@@ -29,7 +34,7 @@ class JWTUtils {
         = claimsResolver(extractAllClaims(token))
 
     private fun extractAllClaims(token: String)
-        = Jwts.parser().setSigningKey(SECRET_KEY).parseClaimsJws(token).body
+        = Jwts.parser().setSigningKey(jwtConfig.secret).parseClaimsJws(token).body
 
     private fun isTokenExpired(token: String)
         = extractExpiration(token).before(Date())
@@ -44,8 +49,8 @@ class JWTUtils {
             .setClaims(claims)
             .setSubject(subject)
             .setIssuedAt(Date(System.currentTimeMillis()))
-            .setExpiration(Date(System.currentTimeMillis() + tokenDuration))
-            .signWith(SignatureAlgorithm.HS256, SECRET_KEY)
+            .setExpiration(Date(System.currentTimeMillis() + jwtConfig.duration.toMillis()))
+            .signWith(SignatureAlgorithm.HS256, jwtConfig.secret)
             .compact()
 
     fun validateToken(token: String, userDetails: UserDetails)
@@ -53,10 +58,14 @@ class JWTUtils {
             it == userDetails.username && !isTokenExpired(token)
         }
 
+    @ConfigurationProperties(prefix = "jwt")
+    @ConstructorBinding
+    data class JWTConfig(
+        val secret: String,
+        val duration: Duration,
+    )
+
     companion object {
-        val tokenDuration = TimeUnit.DAYS.toMillis(1)
         private const val ROLE_KEY = "role"
-        private const val SECRET_KEY = "Dak-tron-gSere-tcgh-f7e7-8hg-f78-6fj-t789-e4j0-4few-89d56-789-4ed5-fj8e3-0w"
-        // TODO: Re-Generate and hide SECRET_KEY
     }
 }

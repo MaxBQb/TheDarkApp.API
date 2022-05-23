@@ -1,5 +1,6 @@
 package lab.maxb.dark_api.services.implementation
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
@@ -11,7 +12,6 @@ import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.event.EventListener
-import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils
 import org.springframework.web.multipart.MultipartFile
@@ -25,15 +25,17 @@ import javax.imageio.ImageIO
 
 @Service
 class FirebaseImageService @Autowired constructor(
-    private var properties: Properties
+    private var properties: Properties,
+    private var firebaseCredential: FirebaseCredential,
 ) : ImageService {
     private val bucket get() = StorageClient.getInstance().bucket()
 
     @EventListener
     fun init(event: ApplicationReadyEvent?) {
-        val serviceAccount = ClassPathResource("FirebaseAccountKey.json")
         val options = FirebaseOptions.builder()
-            .setCredentials(GoogleCredentials.fromStream(serviceAccount.inputStream))
+            .setCredentials(GoogleCredentials.fromStream(
+                ObjectMapper().writeValueAsString(firebaseCredential).byteInputStream())
+            )
             .setStorageBucket(properties.bucketName)
             .build()
         FirebaseApp.initializeApp(options)
@@ -89,3 +91,18 @@ class FirebaseImageService @Autowired constructor(
         it.toByteArray()
     }
 }
+
+@ConfigurationProperties(prefix = "firebase.credential")
+@ConstructorBinding
+data class FirebaseCredential(
+    val type: String,
+    val project_id: String,
+    val private_key_id: String,
+    val private_key: String,
+    val client_email: String,
+    val client_id: String,
+    val auth_uri: String,
+    val token_uri: String,
+    val auth_provider_x509_cert_url: String,
+    val client_x509_cert_url: String,
+)
