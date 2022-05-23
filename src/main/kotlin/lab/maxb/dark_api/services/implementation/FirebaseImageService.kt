@@ -1,9 +1,11 @@
-package lab.maxb.dark_api.services
+package lab.maxb.dark_api.services.implementation
 
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.StorageClient
+import lab.maxb.dark_api.model.randomUUID
+import lab.maxb.dark_api.services.ImageService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -11,11 +13,14 @@ import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.context.event.EventListener
 import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Service
+import org.springframework.util.StringUtils
 import org.springframework.web.multipart.MultipartFile
 import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.nio.channels.Channels
+import javax.imageio.ImageIO
 
 
 @Service
@@ -34,7 +39,7 @@ class FirebaseImageService @Autowired constructor(
         FirebaseApp.initializeApp(options)
     }
 
-    override fun getImageUrl(name: String) =
+    override fun getUrl(name: String) =
         properties.imageUrl.format(name)
 
     @Throws(IOException::class)
@@ -71,4 +76,16 @@ class FirebaseImageService @Autowired constructor(
         val bucketName: String,
         val imageUrl: String
     )
+
+    val String.extension get() = StringUtils.getFilenameExtension(this) ?: ""
+
+    val String.randomFileName get()
+    = "$randomUUID.$extension"
+
+    @Throws(IOException::class)
+    fun BufferedImage.toByteArray(format: String): ByteArray = ByteArrayOutputStream().use {
+        ImageIO.write(this, format, it)
+        it.flush()
+        it.toByteArray()
+    }
 }

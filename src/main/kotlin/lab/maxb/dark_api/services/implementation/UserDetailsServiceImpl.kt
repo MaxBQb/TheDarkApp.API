@@ -1,7 +1,8 @@
-package lab.maxb.dark_api.services.security
+package lab.maxb.dark_api.services.implementation
 
-import lab.maxb.dark_api.repository.dao.UserCredentialsDAO
 import lab.maxb.dark_api.model.UserCredentials
+import lab.maxb.dark_api.repository.dao.UserCredentialsDAO
+import lab.maxb.dark_api.repository.dao.findByLoginEquals
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
@@ -9,13 +10,11 @@ import org.springframework.security.core.userdetails.UserDetailsService
 import org.springframework.stereotype.Service
 
 @Service
-class UserDetailsServiceImpl(
-    @Autowired
-    private val userCredentialsDAO: UserCredentialsDAO
+class UserDetailsServiceImpl @Autowired constructor(
+    private val dataSource: UserCredentialsDAO
 ) : UserDetailsService {
     override fun loadUserByUsername(userName: String)
-        = userCredentialsDAO.findByLoginEquals(userName,
-          UserCredentials::class.java)?.let {
+        = dataSource.findByLoginEquals<UserCredentials>(userName)?.let {
             User(
                 it.login,
                 it.password,

@@ -1,8 +1,7 @@
 package lab.maxb.dark_api.controllers
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
-import lab.maxb.dark_api.repository.dao.UserDAO
-import lab.maxb.dark_api.model.User
 import lab.maxb.dark_api.SECURITY_SCHEME
+import lab.maxb.dark_api.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -15,11 +14,8 @@ import java.util.*
 @RequestMapping("user")
 @SecurityRequirement(name = SECURITY_SCHEME)
 class UserController @Autowired constructor(
-    private val userDAO: UserDAO,
+    private val service: UserService,
 ) {
-
     @GetMapping("/{id}")
-    fun getUser(@PathVariable id: UUID): User?
-        = userDAO.findByIdEquals(id)
-
+    fun getUser(@PathVariable id: UUID) = service.get(id)
 }

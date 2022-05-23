@@ -1,10 +1,15 @@
-package lab.maxb.dark_api.services.security
+package lab.maxb.dark_api.services.implementation
 
 import lab.maxb.dark_api.controllers.AuthController
-import lab.maxb.dark_api.repository.dao.UserCredentialsDAO
-import lab.maxb.dark_api.repository.dao.UserDAO
+import lab.maxb.dark_api.model.User
 import lab.maxb.dark_api.model.UserCredentials
 import lab.maxb.dark_api.model.UserCredentialsView
+import lab.maxb.dark_api.model.pojo.AuthRequest
+import lab.maxb.dark_api.model.pojo.AuthResponse
+import lab.maxb.dark_api.repository.dao.UserCredentialsDAO
+import lab.maxb.dark_api.repository.dao.findByLoginEquals
+import lab.maxb.dark_api.services.AuthService
+import lab.maxb.dark_api.services.UserService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.AuthenticationManager
@@ -12,18 +17,17 @@ import org.springframework.security.authentication.BadCredentialsException
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
-import java.util.*
 
 @Service
-class AuthService @Autowired constructor(
+class AuthServiceImpl @Autowired constructor(
     private val authenticationManager: AuthenticationManager,
     private var passwordEncoder: PasswordEncoder,
-    private val userDetailsService: UserDetailsServiceImpl,
     private val jwtUtils: JWTUtils,
-    private val userCredentialsDAO: UserCredentialsDAO,
-    private val userDAO: UserDAO,
-) {
-    fun login(request: AuthRequest): AuthResponse? {
+    private val dataSource: UserCredentialsDAO,
+    private val userDetailsService: UserDetailsServiceImpl,
+    private val userService: UserService,
+) : AuthService {
+    override fun login(request: AuthRequest): AuthResponse? {
         try {
             authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(
@@ -42,23 +46,31 @@ class AuthService @Autowired constructor(
         return getAuthResponse(request.login)
     }
 
-    fun signup(request: AuthRequest): AuthResponse? {
-        if (userCredentialsDAO.existsByLoginEquals(request.login))
+    override fun signup(request: AuthRequest): AuthResponse? {
+        if (dataSource.existsByLoginEquals(request.login))
             return null
 
-        userCredentialsDAO.save(UserCredentials(
-            request.login,
-            passwordEncoder.encode(request.password),
-            userDAO.save(lab.maxb.dark_api.model.User()),
-            UserCredentials.Role.USER
-        ))
+        dataSource.save(
+            UserCredentials(
+                request.login,
+                passwordEncoder.encode(request.password),
+                userService.save(User(request.login)),
+                UserCredentials.Role.USER
+            )
+        )
 
         return login(request)
     }
 
+    override fun setRole(login: String, role: UserCredentials.Role)
+        = dataSource.findByLoginEquals<UserCredentials>(login)?.let {
+            it.role = role
+            dataSource.save(it)
+            true
+        } ?: false
+
     private fun getAuthResponse(login: String)
-            = userCredentialsDAO.findByLoginEquals(login,
-        UserCredentialsView::class.java)?.let { credentials ->
+            = dataSource.findByLoginEquals<UserCredentialsView>(login)?.let { credentials ->
         userDetailsService.loadUserByUsername(login)?.let {
             AuthResponse(
                 jwtUtils.generateToken(it),
@@ -68,14 +80,9 @@ class AuthService @Autowired constructor(
         }
     }
 
-    class AuthRequest(
-        var login: String,
-        var password: String,
-    )
+    override fun getUserId(login: String)
+        = dataSource.findByLoginEquals<UserCredentialsView>(login)?.user_id
 
-    class AuthResponse(
-        var token: String,
-        var id: UUID,
-        var role: UserCredentials.Role,
-    )
+    override fun getUser(login: String)
+        = getUserId(login)?.let { userService.get(it) }
 }

@@ -1,4 +1,4 @@
-package lab.maxb.dark_api.services.security
+package lab.maxb.dark_api.services.implementation
 
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
