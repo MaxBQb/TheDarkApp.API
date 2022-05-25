@@ -4,7 +4,7 @@ import java.util.*
 import javax.persistence.*
 
 @Entity
-@Table(name = "DarkUser")
+@Table(name = "dark_user")
 class User(
     @Column(nullable = false)
     var name: String = "Anonymous User",

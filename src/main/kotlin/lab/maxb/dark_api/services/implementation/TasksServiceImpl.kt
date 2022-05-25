@@ -84,7 +84,7 @@ class TasksServiceImpl @Autowired constructor(
         }
     }
 
-    override fun downloadImage(path: String) = imageService.get(path)?.let {
+    override fun downloadImage(path: String) = imageService.get(path)?.use {
         ByteArrayResource(it.readAllBytes())
     }
 

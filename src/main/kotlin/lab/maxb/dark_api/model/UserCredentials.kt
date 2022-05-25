@@ -26,7 +26,7 @@ class UserCredentials(
     enum class Role {
         ADMINISTRATOR,
         MODERATOR,
-        CONSULTOR,
+        CONSULTER,
         PREMIUM_USER,
         USER,
     }
