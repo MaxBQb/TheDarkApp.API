@@ -13,4 +13,10 @@ class UserServiceImpl @Autowired constructor(
 ) : UserService {
     override fun get(id: UUID) = dataSource.findByIdEquals(id)
     override fun save(value: User) = dataSource.save(value)
+    override fun addRating(id: UUID, value: Int) {
+        get(id)?.let {
+            it.rating += value
+            save(it)
+        }
+    }
 }

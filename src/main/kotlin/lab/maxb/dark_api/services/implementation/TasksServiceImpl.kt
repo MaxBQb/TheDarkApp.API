@@ -13,6 +13,7 @@ import lab.maxb.dark_api.repository.dao.findByIdEquals
 import lab.maxb.dark_api.services.AuthService
 import lab.maxb.dark_api.services.ImageService
 import lab.maxb.dark_api.services.TasksService
+import lab.maxb.dark_api.services.UserService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
@@ -26,6 +27,7 @@ import java.util.*
 class TasksServiceImpl @Autowired constructor(
     private val dataSource: RecognitionTaskDAO,
     private val authService: AuthService,
+    private val userService: UserService,
     private val imageService: ImageService,
 ) : TasksService {
 
@@ -111,7 +113,7 @@ class TasksServiceImpl @Autowired constructor(
             if (task.owner!!.id == user.id || !task.reviewed)
                 null
             else if (answer in task.names!!) {
-                dataSource.deleteById(task.id)
+                userService.addRating(user.id)
                 true
             } else false
         }
