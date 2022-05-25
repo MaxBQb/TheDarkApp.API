@@ -18,7 +18,6 @@ import org.springframework.web.multipart.MultipartFile
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.IOException
-import java.io.InputStream
 import java.nio.channels.Channels
 import javax.imageio.ImageIO
 
@@ -59,9 +58,8 @@ class FirebaseImageService @Autowired constructor(
         return name
     }
 
-    override fun get(name: String): InputStream? {
-        val reader = bucket.get(name)?.reader() ?: return null
-        return Channels.newInputStream(reader)
+    override fun get(name: String) = bucket.get(name)?.reader()?.let {
+        Channels.newInputStream(it)
     }
 
     @Throws(IOException::class)

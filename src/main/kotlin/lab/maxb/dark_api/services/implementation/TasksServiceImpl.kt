@@ -1,5 +1,6 @@
 package lab.maxb.dark_api.services.implementation
 
+import com.google.common.io.ByteStreams.toByteArray
 import lab.maxb.dark_api.controllers.role
 import lab.maxb.dark_api.model.RecognitionTask
 import lab.maxb.dark_api.model.hasControlPrivileges
@@ -85,7 +86,7 @@ class TasksServiceImpl @Autowired constructor(
     }
 
     override fun downloadImage(path: String) = imageService.get(path)?.use {
-        ByteArrayResource(it.readAllBytes())
+        ByteArrayResource(toByteArray(it))
     }
 
     override fun add(
