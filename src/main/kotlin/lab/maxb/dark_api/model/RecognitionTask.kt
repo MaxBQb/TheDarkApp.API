@@ -14,6 +14,9 @@ class RecognitionTask(
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     var owner: User? = null,
 
+    @OneToMany(mappedBy = "task")
+    var solutions: Set<Solution>? = null,
+
     @Column(nullable = false)
     var reviewed: Boolean = false,
 

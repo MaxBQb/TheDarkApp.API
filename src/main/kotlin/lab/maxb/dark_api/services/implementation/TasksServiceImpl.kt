@@ -3,13 +3,13 @@ package lab.maxb.dark_api.services.implementation
 import com.google.common.io.ByteStreams.toByteArray
 import lab.maxb.dark_api.controllers.role
 import lab.maxb.dark_api.model.RecognitionTask
+import lab.maxb.dark_api.model.Solution
 import lab.maxb.dark_api.model.hasControlPrivileges
 import lab.maxb.dark_api.model.isUser
 import lab.maxb.dark_api.model.pojo.RecognitionTaskCreationDTO
 import lab.maxb.dark_api.model.pojo.RecognitionTaskFullView
 import lab.maxb.dark_api.model.pojo.RecognitionTaskImages
-import lab.maxb.dark_api.repository.dao.RecognitionTaskDAO
-import lab.maxb.dark_api.repository.dao.findByIdEquals
+import lab.maxb.dark_api.repository.dao.*
 import lab.maxb.dark_api.services.AuthService
 import lab.maxb.dark_api.services.ImageService
 import lab.maxb.dark_api.services.TasksService
@@ -26,6 +26,7 @@ import java.util.*
 @Service
 class TasksServiceImpl @Autowired constructor(
     private val dataSource: RecognitionTaskDAO,
+    private val solutionsDataSource: SolutionDAO,
     private val authService: AuthService,
     private val userService: UserService,
     private val imageService: ImageService,
@@ -34,7 +35,7 @@ class TasksServiceImpl @Autowired constructor(
     override fun getAvailable(auth: Authentication, pageable: Pageable)
         = if (auth.role.isUser)
             authService.getUserId(auth.name)?.let {
-                dataSource.findByReviewedTrueAndOwnerIdNot(it)
+                dataSource.findTasksForUser(it, pageable)
             }
         else if (auth.role.hasControlPrivileges)
             dataSource.findByOrderByReviewedAsc(pageable)
@@ -42,7 +43,9 @@ class TasksServiceImpl @Autowired constructor(
 
     override fun get(auth: Authentication, id: UUID)
         = if (auth.role.isUser)
-            dataSource.findByIdEqualsAndReviewedTrue(id)
+            authService.getUserId(auth.name)?.let { userId ->
+                dataSource.findTaskForUser<RecognitionTaskFullView>(id, userId)
+            }
         else if (auth.role.hasControlPrivileges)
             dataSource.findByIdEquals<RecognitionTaskFullView>(id)
         else null
@@ -109,13 +112,19 @@ class TasksServiceImpl @Autowired constructor(
         id: UUID,
         answer: String
     ) = authService.getUser(auth.name)?.let { user ->
-        dataSource.findByIdEquals<RecognitionTask>(id)?.let { task ->
-            if (task.owner!!.id == user.id || !task.reviewed)
-                null
-            else if (answer in task.names!!) {
-                userService.addRating(user.id)
+        dataSource.findTaskForUser<RecognitionTask>(id, user.id)?.let { task ->
+            checkAnswer(task, answer)?.let { rating ->
+                solutionsDataSource.save(Solution(
+                    answer, rating, user, task
+                ))
+                userService.addRating(user.id, rating)
                 true
-            } else false
+            } ?: false
         }
     }
+
+    private fun checkAnswer(task: RecognitionTask, answer: String)
+        = if (answer in task.names!!) {
+            1 // TODO: Можно задать разные оценки
+        } else null
 }
