@@ -7,9 +7,11 @@ import lab.maxb.dark_api.model.Solution
 import lab.maxb.dark_api.model.hasControlPrivileges
 import lab.maxb.dark_api.model.isUser
 import lab.maxb.dark_api.model.pojo.RecognitionTaskCreationDTO
-import lab.maxb.dark_api.model.pojo.RecognitionTaskFullView
+import lab.maxb.dark_api.model.pojo.RecognitionTaskFullViewAuto
 import lab.maxb.dark_api.model.pojo.RecognitionTaskImages
-import lab.maxb.dark_api.repository.dao.*
+import lab.maxb.dark_api.repository.dao.RecognitionTaskDAO
+import lab.maxb.dark_api.repository.dao.SolutionDAO
+import lab.maxb.dark_api.repository.dao.findByIdEquals
 import lab.maxb.dark_api.services.AuthService
 import lab.maxb.dark_api.services.ImageService
 import lab.maxb.dark_api.services.TasksService
@@ -44,10 +46,10 @@ class TasksServiceImpl @Autowired constructor(
     override fun get(auth: Authentication, id: UUID)
         = if (auth.role.isUser)
             authService.getUserId(auth.name)?.let { userId ->
-                dataSource.findTaskForUser<RecognitionTaskFullView>(id, userId)
+                dataSource.findTaskForUser(id, userId)
             }
         else if (auth.role.hasControlPrivileges)
-            dataSource.findByIdEquals<RecognitionTaskFullView>(id)
+            dataSource.findByIdEquals<RecognitionTaskFullViewAuto>(id)
         else null
 
     override fun mark(auth: Authentication, id: UUID, isAllowed: Boolean): Boolean {
@@ -112,14 +114,15 @@ class TasksServiceImpl @Autowired constructor(
         id: UUID,
         answer: String
     ) = authService.getUser(auth.name)?.let { user ->
-        dataSource.findTaskForUser<RecognitionTask>(id, user.id)?.let { task ->
-            checkAnswer(task, answer)?.let { rating ->
+        dataSource.findByIdEqualsAndReviewedTrueAndOwner_IdNot(id, user.id)?.let { task ->
+            !solutionsDataSource.existsByTask_IdEqualsAndUser_IdEquals(id, user.id) &&
+            (checkAnswer(task, answer)?.let { rating ->
                 solutionsDataSource.save(Solution(
                     answer, rating, user, task
                 ))
                 userService.addRating(user.id, rating)
                 true
-            } ?: false
+            } ?: false)
         }
     }
 
