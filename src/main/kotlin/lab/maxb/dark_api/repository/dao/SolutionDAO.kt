@@ -4,4 +4,6 @@ import lab.maxb.dark_api.model.Solution
 import org.springframework.data.jpa.repository.JpaRepository
 import java.util.*
 
-interface SolutionDAO : JpaRepository<Solution?, UUID?>
+interface SolutionDAO : JpaRepository<Solution?, UUID?> {
+    fun existsByTask_IdEqualsAndUser_IdEquals(id: UUID, userId: UUID): Boolean
+}

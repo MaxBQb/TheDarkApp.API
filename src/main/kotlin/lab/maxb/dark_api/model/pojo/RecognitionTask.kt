@@ -1,28 +1,34 @@
+@file:Suppress("unused")
+
 package lab.maxb.dark_api.model.pojo
 
 import org.springframework.beans.factory.annotation.Value
 import java.util.*
 
 interface RecognitionTaskListView {
-    var image: String?
-        @Value("#{target.images[0]}") get
-
+    val image: String?
     val owner_id: UUID
-        @Value("#{target.owner.id}") get
-
     val reviewed: Boolean
-    var id: UUID
+    val id: UUID
+}
+
+@Suppress("SpringElInspection")
+interface RecognitionTaskListViewAuto: RecognitionTaskListView {
+    override val image: String? @Value("#{target.images[0]}") get
+    override val owner_id: UUID @Value("#{target.owner.id}") get
 }
 
 interface RecognitionTaskFullView {
-    var names: Set<String>?
-    var images: List<String>?
-
+    val names: Set<String>
+    val images: List<String>
     val owner_id: UUID
-        @Value("#{target.owner.id}") get
-
     val reviewed: Boolean
-    var id: UUID
+    val id: UUID
+}
+
+@Suppress("SpringElInspection")
+interface RecognitionTaskFullViewAuto: RecognitionTaskFullView {
+    override val owner_id: UUID @Value("#{target.owner.id}") get
 }
 
 interface RecognitionTaskImages {

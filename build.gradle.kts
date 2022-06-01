@@ -25,6 +25,7 @@ dependencies {
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api")
     implementation("com.google.firebase:firebase-admin:8.1.0")
+    implementation("com.vladmihalcea:hibernate-types-52:2.16.2")
     implementation("org.springframework.boot:spring-boot-starter-web:2.6.7")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.6.7")
     runtimeOnly("org.postgresql:postgresql:42.3.4")

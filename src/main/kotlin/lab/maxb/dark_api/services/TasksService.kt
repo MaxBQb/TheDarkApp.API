@@ -1,8 +1,6 @@
 package lab.maxb.dark_api.services
 
-import lab.maxb.dark_api.model.pojo.RecognitionTaskCreationDTO
-import lab.maxb.dark_api.model.pojo.RecognitionTaskFullView
-import lab.maxb.dark_api.model.pojo.RecognitionTaskListView
+import lab.maxb.dark_api.model.pojo.*
 import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.security.core.Authentication
