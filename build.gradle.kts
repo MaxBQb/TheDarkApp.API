@@ -19,19 +19,19 @@ repositories {
 
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-security")
-    implementation("org.springdoc:springdoc-openapi-ui:1.6.7")
-    implementation("org.springdoc:springdoc-openapi-security:1.6.7")
-    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.7")
+    implementation("org.springdoc:springdoc-openapi-ui:1.6.11")
+    implementation("org.springdoc:springdoc-openapi-security:1.6.11")
+    implementation("org.springdoc:springdoc-openapi-kotlin:1.6.11")
     implementation("io.jsonwebtoken:jjwt:0.9.1")
     implementation("javax.xml.bind:jaxb-api")
-    implementation("com.google.firebase:firebase-admin:8.1.0")
-    implementation("com.vladmihalcea:hibernate-types-52:2.16.2")
-    implementation("org.springframework.boot:spring-boot-starter-web:2.6.7")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.6.7")
-    runtimeOnly("org.postgresql:postgresql:42.3.4")
+    implementation("com.google.firebase:firebase-admin:9.0.0")
+    implementation("com.vladmihalcea:hibernate-types-52:2.19.2")
+    implementation("org.springframework.boot:spring-boot-starter-web:2.7.4")
+    implementation("org.springframework.boot:spring-boot-starter-data-jpa:2.7.4")
+    runtimeOnly("org.postgresql:postgresql:42.5.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    testImplementation("org.springframework.boot:spring-boot-starter-test:2.6.7")
+    testImplementation("org.springframework.boot:spring-boot-starter-test:2.7.4")
 
     val configurationProcessor ="org.springframework.boot:spring-boot-configuration-processor"
     kapt(configurationProcessor)
