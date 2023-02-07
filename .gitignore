@@ -37,3 +37,5 @@ out/
 .vscode/
 /images/
 /src/main/resources/secret.properties
+/dark_app_db/
+/.env
