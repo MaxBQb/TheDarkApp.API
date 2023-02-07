@@ -2,6 +2,7 @@ package lab.maxb.dark_api.security
 
 import lab.maxb.dark_api.services.implementation.UserDetailsServiceImpl
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
@@ -21,6 +22,9 @@ class SecurityConfigurer @Autowired constructor(
     private val jwtRequestFilter: FiltersJWTRequestFilter,
 ) : WebSecurityConfigurerAdapter() {
 
+    @Value("\${security.routes.allowUnauthorized}")
+    private val allowUnauthorized: Array<String> = emptyArray()
+
     override fun configure(auth: AuthenticationManagerBuilder) {
         auth.userDetailsService<UserDetailsService?>(myUserDetailService)
     }
@@ -28,10 +32,7 @@ class SecurityConfigurer @Autowired constructor(
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
             .authorizeRequests()
-            .antMatchers(
-                "/auth/**",
-                "/docs/**",
-            ).permitAll()
+            .antMatchers(*allowUnauthorized).permitAll()
             .anyRequest()
             .authenticated()
             .and()
