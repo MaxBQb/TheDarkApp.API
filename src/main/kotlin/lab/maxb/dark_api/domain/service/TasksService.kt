@@ -1,0 +1,18 @@
+package lab.maxb.dark_api.domain.service
+
+import lab.maxb.dark_api.domain.model.RecognitionTask
+import org.springframework.core.io.ByteArrayResource
+import org.springframework.data.domain.Pageable
+import org.springframework.security.core.Authentication
+import org.springframework.web.multipart.MultipartFile
+import java.util.*
+
+interface TasksService {
+    fun getAvailable(auth: Authentication, pageable: Pageable): List<RecognitionTask>?
+    fun add(auth: Authentication, task: RecognitionTask): UUID?
+    fun getTask(auth: Authentication, id: UUID): RecognitionTask?
+    fun solve(auth: Authentication, id: UUID, answer: String): Boolean?
+    fun mark(auth: Authentication, id: UUID, isAllowed: Boolean): Boolean
+    fun uploadImage(auth: Authentication, id: UUID, file: MultipartFile): String?
+    fun downloadImage(path: String): ByteArrayResource?
+}
