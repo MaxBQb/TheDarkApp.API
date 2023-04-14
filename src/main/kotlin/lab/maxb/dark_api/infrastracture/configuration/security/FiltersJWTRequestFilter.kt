@@ -3,8 +3,6 @@ package lab.maxb.dark_api.infrastracture.configuration.security
 
 import lab.maxb.dark_api.domain.service.implementation.JWTUtils
 import lab.maxb.dark_api.domain.service.implementation.UserDetailsServiceImpl
-import lab.maxb.dark_api.domain.service.implementation.getRoleFromAuthority
-import lab.maxb.dark_api.domain.service.implementation.toAuthority
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
@@ -34,9 +32,9 @@ class FiltersJWTRequestFilter @Autowired constructor(
                 if (jwtUtils.validateToken(jwt, userDetails)) {
                     SecurityContextHolder.getContext().authentication = UsernamePasswordAuthenticationToken(
                         userDetails, null,
-                        if (role == getRoleFromAuthority(userDetails.authorities.first().authority))
+                        if (role == Roles.fromAuthority(userDetails.authorities.first().authority))
                             userDetails.authorities
-                        else listOf(role.toAuthority())
+                        else listOf(Roles.toAuthority(role))
                     ).also {
                         it.details = WebAuthenticationDetailsSource().buildDetails(request)
                     }

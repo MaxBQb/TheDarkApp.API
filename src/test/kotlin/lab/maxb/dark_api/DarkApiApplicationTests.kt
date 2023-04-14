@@ -23,7 +23,7 @@ class DarkApiApplicationTests @Autowired constructor(
                 fillerConfig.admin.login,
                 fillerConfig.admin.password,
             ).toDomain()
-        )?.role, Role.ADMINISTRATOR)
+        ).role, Role.ADMINISTRATOR)
     }
 
 }

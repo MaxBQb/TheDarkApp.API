@@ -2,6 +2,7 @@ package lab.maxb.dark_api.infrastracture.configuration.db
 
 import lab.maxb.dark_api.application.request.AuthRequest
 import lab.maxb.dark_api.application.request.toDomain
+import lab.maxb.dark_api.domain.exceptions.AuthException
 import lab.maxb.dark_api.domain.model.Role
 import lab.maxb.dark_api.domain.model.User
 import lab.maxb.dark_api.domain.service.AuthService
@@ -44,7 +45,11 @@ class DatabaseFiller @Autowired constructor(
     }
 
     private fun getOrCreateAccount(auth: AuthRequest)
-        = (authService.signup(auth.toDomain()) ?: authService.login(auth.toDomain()))?.user?.id!!
+        = (try {
+            authService.signup(auth.toDomain())
+        } catch (e: AuthException.AlreadyExists) {
+            authService.login(auth.toDomain())
+        }).user.id
 
     @ConfigurationProperties(prefix = "database.prefill")
     @ConstructorBinding

@@ -1,6 +1,7 @@
 package lab.maxb.dark_api.domain.service.implementation
 
 import lab.maxb.dark_api.application.rest.controllers.AuthController
+import lab.maxb.dark_api.domain.exceptions.AuthException
 import lab.maxb.dark_api.domain.gateway.UserCredentialsGateway
 import lab.maxb.dark_api.domain.gateway.UsersGateway
 import lab.maxb.dark_api.domain.model.Role
@@ -23,7 +24,7 @@ class AuthServiceImpl @Autowired constructor(
     private val userDetailsService: UserDetailsServiceImpl,
     private val usersGateway: UsersGateway,
 ) : AuthService {
-    override fun login(request: UserCredentials): AuthService.AuthResponse? {
+    override fun login(request: UserCredentials): AuthService.AuthResponse {
         try {
             authenticationManager.authenticate(
                 UsernamePasswordAuthenticationToken(
@@ -37,14 +38,14 @@ class AuthServiceImpl @Autowired constructor(
                     .warn("Incorrect username or password")
             else
                 e.printStackTrace()
-            return null
+            throw AuthException.WrongCredentials()
         }
         return getAuthResponse(request.login)
     }
 
-    override fun signup(request: UserCredentials): AuthService.AuthResponse? {
+    override fun signup(request: UserCredentials): AuthService.AuthResponse {
         if (credentialsGateway.existsByLogin(request.login))
-            return null
+            throw AuthException.AlreadyExists()
 
         credentialsGateway.save(
             request.copy(
@@ -71,7 +72,7 @@ class AuthServiceImpl @Autowired constructor(
                 credentials.role,
             )
         }
-    }
+    } ?: throw AuthException.WrongCredentials()
 
     override fun getUserId(login: String)
         = credentialsGateway.findByLogin(login)?.user?.id

@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.SignatureAlgorithm
 import lab.maxb.dark_api.domain.model.Role
+import lab.maxb.dark_api.infrastracture.configuration.security.Roles
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
@@ -40,7 +41,7 @@ class JWTUtils @Autowired constructor(
         = extractExpiration(token).before(Date())
 
     fun generateToken(userDetails: UserDetails): String = createToken(
-        hashMapOf(ROLE_KEY to getRoleFromAuthority(userDetails.authorities.first().authority).name),
+        hashMapOf(ROLE_KEY to Roles.fromAuthority(userDetails.authorities.first().authority).name),
         userDetails.username
     )
 

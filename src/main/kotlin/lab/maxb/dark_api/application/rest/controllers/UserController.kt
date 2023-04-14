@@ -11,7 +11,7 @@ import java.util.*
 
 
 @RestController
-@RequestMapping("user")
+@RequestMapping("users")
 @SecurityRequirement(name = SECURITY_SCHEME)
 class UserController @Autowired constructor(
     private val service: UserService,

@@ -1,5 +1,6 @@
 package lab.maxb.dark_api.domain.service.implementation
 
+import lab.maxb.dark_api.domain.exceptions.NotFoundException
 import lab.maxb.dark_api.domain.gateway.UsersGateway
 import lab.maxb.dark_api.domain.model.User
 import lab.maxb.dark_api.domain.service.UserService
@@ -11,11 +12,10 @@ import java.util.*
 class UserServiceImpl @Autowired constructor(
     private val usersGateway: UsersGateway,
 ) : UserService {
-    override fun getUser(id: UUID) = usersGateway.findById(id)
+    override fun getUser(id: UUID) = usersGateway.findById(id) ?: throw NotFoundException.of("User")
     override fun addUser(value: User) = usersGateway.save(value)
     override fun addRating(id: UUID, value: Int) {
-        getUser(id)?.let {
-            addUser(it.copy(rating = it.rating + value))
-        }
+        val user = getUser(id)
+        addUser(user.copy(rating = user.rating + value))
     }
 }

@@ -2,11 +2,12 @@ package lab.maxb.dark_api.application.rest.controllers
 
 import lab.maxb.dark_api.application.request.AuthRequest
 import lab.maxb.dark_api.application.request.toDomain
-import lab.maxb.dark_api.application.response.AuthResponse
 import lab.maxb.dark_api.application.response.toNetwork
+import lab.maxb.dark_api.domain.model.ShortUserCredentials
 import lab.maxb.dark_api.domain.service.AuthService
+import lab.maxb.dark_api.infrastracture.configuration.security.Roles
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
@@ -20,14 +21,15 @@ class AuthController @Autowired constructor(
 ) {
     @PostMapping("login")
     fun login(@RequestBody body: AuthRequest)
-        = wrapResponse(service.login(body.toDomain()))
+        = service.login(body.toDomain()).toNetwork()
 
     @PostMapping("signup")
     fun signup(@RequestBody body: AuthRequest)
-        = wrapResponse(service.signup(body.toDomain()))
-
-    private fun wrapResponse(response: AuthService.AuthResponse?):
-            ResponseEntity<AuthResponse> = response?.toNetwork()?.let {
-        ResponseEntity.ok(it)
-    } ?: ResponseEntity.badRequest().build()
+        = service.signup(body.toDomain()).toNetwork()
 }
+
+fun AuthService.extractCredentials(auth: Authentication)
+    = ShortUserCredentials(
+        user = getUser(auth.name)!!,
+        role = Roles.fromAuthority(auth.authorities.first().authority)
+    )

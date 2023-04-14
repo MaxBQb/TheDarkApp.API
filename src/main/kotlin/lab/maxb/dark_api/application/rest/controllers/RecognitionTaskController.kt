@@ -1,14 +1,17 @@
 package lab.maxb.dark_api.application.rest.controllers
 
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import lab.maxb.dark_api.SECURITY_SCHEME
 import lab.maxb.dark_api.application.request.RecognitionTaskNetworkCreationDTO
 import lab.maxb.dark_api.application.request.toDomain
+import lab.maxb.dark_api.application.response.RecognitionTaskNetworkDTO
 import lab.maxb.dark_api.application.response.toNetworkDTO
 import lab.maxb.dark_api.application.response.toNetworkListDTO
 import lab.maxb.dark_api.domain.service.AuthService
 import lab.maxb.dark_api.domain.service.TasksService
-import lab.maxb.dark_api.domain.service.implementation.extractCredentials
+import lab.maxb.dark_api.infrastracture.configuration.security.Roles
+import org.springdoc.core.converters.models.PageableAsQueryParam
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.io.Resource
 import org.springframework.data.domain.Pageable
@@ -21,46 +24,53 @@ import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.util.*
+import javax.annotation.security.RolesAllowed
 
 
 @RestController
-@RequestMapping("task")
+@RequestMapping("tasks")
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 @SecurityRequirement(name = SECURITY_SCHEME)
 class RecognitionTaskController @Autowired constructor(
     private val service: TasksService,
     private val authService: AuthService,
 ) {
-
-    @GetMapping("/all")
+    @GetMapping("/")
+    @PageableAsQueryParam
     fun getAllRecognitionTasks(
         auth: Authentication,
-        pageable: Pageable
-    ) = service.getAvailable(auth, pageable)?.map { it.toNetworkListDTO() }
+        @Parameter(hidden = true) pageable: Pageable
+    ) = service.getAvailable(
+        authService.extractCredentials(auth), pageable,
+    ).map { it.toNetworkListDTO() }
 
     @GetMapping("/{id}")
     fun getRecognitionTask(
         auth: Authentication,
         @PathVariable id: UUID
-    ) = service.getTask(auth, id)?.toNetworkDTO()
+    ) = service.getTask(
+        authService.extractCredentials(auth),
+        id,
+    ).toNetworkDTO()
 
-    @PatchMapping("mark/{id}/{isAllowed}")
+    @PatchMapping("/{id}/review/{isAllowed}")
+    @RolesAllowed(Roles.MODERATOR)
     fun markRecognitionTask(
-        auth: Authentication,
         @PathVariable id: UUID,
         @PathVariable isAllowed: Boolean
-    ) = service.mark(auth, id, isAllowed)
+    ) = service.mark(id, isAllowed)
 
-    @PostMapping("{id}/image", consumes = [MULTIPART_FORM_DATA_VALUE])
+    @PostMapping("{id}/images/", consumes = [MULTIPART_FORM_DATA_VALUE])
+    @RolesAllowed(Roles.USER, Roles.PREMIUM_USER)
     fun uploadImage(
         auth: Authentication,
         @PathVariable id: UUID,
         @RequestParam file: MultipartFile
-    ) = service.uploadImage(auth, id, file)
+    ) = service.uploadImage(authService.extractCredentials(auth), id, file)
 
     @GetMapping("/image/{path}")
     fun downloadImage(@PathVariable path: String): ResponseEntity<Resource> {
-        val resource = service.downloadImage(path) ?: return ResponseEntity.noContent().build()
+        val resource = service.downloadImage(path)
         val headers = HttpHeaders().apply {
             add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
             add(HttpHeaders.PRAGMA, "no-cache")
@@ -71,20 +81,22 @@ class RecognitionTaskController @Autowired constructor(
             .contentType(MediaType.parseMediaType("application/octet-stream")).body(resource)
     }
 
-    @PostMapping("/add")
+    @PostMapping("/")
+    @RolesAllowed(Roles.USER, Roles.PREMIUM_USER)
     fun addRecognitionTask(
         auth: Authentication,
         @RequestBody task: RecognitionTaskNetworkCreationDTO
-    ): UUID? {
+    ): RecognitionTaskNetworkDTO? {
         val credentials = authService.extractCredentials(auth)
         task.owner = credentials.user
-        return service.add(auth, task.toDomain())
+        return service.add(task.toDomain()).toNetworkDTO()
     }
 
-    @GetMapping("/solve/{id}")
+    @PostMapping("{id}/solution/")
+    @RolesAllowed(Roles.USER, Roles.PREMIUM_USER)
     fun solveRecognitionTask(
         auth: Authentication,
         @PathVariable id: UUID,
         @RequestParam answer: String
-    ) = service.solve(auth, id, answer)
+    ) = service.solve(authService.extractCredentials(auth), id, answer)
 }
