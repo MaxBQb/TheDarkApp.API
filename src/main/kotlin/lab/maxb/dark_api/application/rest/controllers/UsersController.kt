@@ -13,7 +13,7 @@ import java.util.*
 @RestController
 @RequestMapping("users")
 @SecurityRequirement(name = SECURITY_SCHEME)
-class UserController @Autowired constructor(
+class UsersController @Autowired constructor(
     private val service: UserService,
 ) {
     @GetMapping("/{id}")
