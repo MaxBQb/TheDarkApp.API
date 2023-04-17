@@ -31,7 +31,7 @@ import javax.annotation.security.RolesAllowed
 @RequestMapping("tasks")
 @EnableGlobalMethodSecurity(jsr250Enabled = true)
 @SecurityRequirement(name = SECURITY_SCHEME)
-class RecognitionTaskController @Autowired constructor(
+class TasksController @Autowired constructor(
     private val service: TasksService,
     private val authService: AuthService,
 ) {
@@ -53,12 +53,13 @@ class RecognitionTaskController @Autowired constructor(
         id,
     ).toNetworkDTO()
 
-    @PatchMapping("/{id}/review/{isAllowed}")
+    @PostMapping("/{id}/approve/")
     @RolesAllowed(Roles.MODERATOR)
-    fun markRecognitionTask(
-        @PathVariable id: UUID,
-        @PathVariable isAllowed: Boolean
-    ) = service.mark(id, isAllowed)
+    fun markRecognitionTaskApproved(@PathVariable id: UUID) = service.mark(id, true)
+
+    @PostMapping("/{id}/decline/")
+    @RolesAllowed(Roles.MODERATOR)
+    fun markRecognitionTaskDeclined(@PathVariable id: UUID) = service.mark(id, false)
 
     @PostMapping("{id}/images/", consumes = [MULTIPART_FORM_DATA_VALUE])
     @RolesAllowed(Roles.USER, Roles.PREMIUM_USER)
@@ -92,7 +93,7 @@ class RecognitionTaskController @Autowired constructor(
         return service.add(task.toDomain()).toNetworkDTO()
     }
 
-    @PostMapping("{id}/solution/")
+    @PostMapping("{id}/solutions/")
     @RolesAllowed(Roles.USER, Roles.PREMIUM_USER)
     fun solveRecognitionTask(
         auth: Authentication,
