@@ -10,5 +10,5 @@ interface TasksService {
     fun add(task: RecognitionTask): RecognitionTask
     fun getTask(account: ShortUserCredentials, id: UUID): RecognitionTask
     fun solve(account: ShortUserCredentials, id: UUID, answer: String): Boolean
-    fun mark(id: UUID, isAllowed: Boolean): Boolean
+    fun mark(id: UUID, isAllowed: Boolean)
 }

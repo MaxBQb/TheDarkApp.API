@@ -36,17 +36,16 @@ class TasksServiceImpl @Autowired constructor(
             tasksGateway.findById(id)
         else throw AccessDeniedException()) ?: throw NotFoundException.of("Task")
 
-    override fun mark(id: UUID, isAllowed: Boolean) = tasksGateway.findById(id)?.let {
-        if (!isAllowed && !it.reviewed) {
+    override fun mark(id: UUID, isAllowed: Boolean) {
+        val task = tasksGateway.findById(id) ?: throw NotFoundException.of("Task")
+        if (!isAllowed && !task.reviewed) {
             tasksGateway.findById(id)?.images?.forEach { path ->
                 runCatching { imageService.delete(path) }
             }
             tasksGateway.deleteById(id)
-        } else {
-            tasksGateway.save(it.copy(reviewed = isAllowed))
-        }
-        true
-    } ?: false
+        } else
+            tasksGateway.save(task.copy(reviewed = isAllowed))
+    }
 
     override fun add(task: RecognitionTask): RecognitionTask {
         val validModel = task.validate()
