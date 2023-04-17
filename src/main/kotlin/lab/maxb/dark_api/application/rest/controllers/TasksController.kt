@@ -13,16 +13,10 @@ import lab.maxb.dark_api.domain.service.TasksService
 import lab.maxb.dark_api.infrastracture.configuration.security.Roles
 import org.springdoc.core.converters.models.PageableAsQueryParam
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.Resource
 import org.springframework.data.domain.Pageable
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
-import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
-import org.springframework.http.ResponseEntity
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.core.Authentication
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 import java.util.*
 import javax.annotation.security.RolesAllowed
 
@@ -60,27 +54,6 @@ class TasksController @Autowired constructor(
     @PostMapping("/{id}/decline/")
     @RolesAllowed(Roles.MODERATOR)
     fun markRecognitionTaskDeclined(@PathVariable id: UUID) = service.mark(id, false)
-
-    @PostMapping("{id}/images/", consumes = [MULTIPART_FORM_DATA_VALUE])
-    @RolesAllowed(Roles.USER, Roles.PREMIUM_USER)
-    fun uploadImage(
-        auth: Authentication,
-        @PathVariable id: UUID,
-        @RequestParam file: MultipartFile
-    ) = service.uploadImage(authService.extractCredentials(auth), id, file)
-
-    @GetMapping("/image/{path}")
-    fun downloadImage(@PathVariable path: String): ResponseEntity<Resource> {
-        val resource = service.downloadImage(path)
-        val headers = HttpHeaders().apply {
-            add(HttpHeaders.CACHE_CONTROL, "no-cache, no-store, must-revalidate")
-            add(HttpHeaders.PRAGMA, "no-cache")
-            add(HttpHeaders.EXPIRES, "0")
-            add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"$path\"")
-        }
-        return ResponseEntity.ok().headers(headers).contentLength(resource.contentLength())
-            .contentType(MediaType.parseMediaType("application/octet-stream")).body(resource)
-    }
 
     @PostMapping("/")
     @RolesAllowed(Roles.USER, Roles.PREMIUM_USER)

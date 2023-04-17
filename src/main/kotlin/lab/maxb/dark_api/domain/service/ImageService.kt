@@ -12,6 +12,8 @@ interface ImageService {
     @Throws(IOException::class)
     fun get(name: String): InputStream?
 
+    fun exists(name: String): Boolean
+
     @Throws(IOException::class)
     fun save(file: MultipartFile): String
 

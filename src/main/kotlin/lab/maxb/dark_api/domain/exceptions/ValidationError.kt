@@ -5,20 +5,27 @@ class ValidationError(
 ) : DomainException("Validation error") {
     constructor(vararg errors: String) : this(errors.toList())
 
-    class Builder {
+    class ValidationContext {
         private val errors = mutableListOf<String>()
 
         fun addError(error: String) = errors.add(error)
+
+        fun addFatalError(error: String) {
+            addError(error)
+            doThrow()
+        }
+
+        fun doThrow() {
+            if (errors.isNotEmpty())
+                throw build()
+        }
+
         fun build() = ValidationError(errors.toList())
     }
 }
 
-inline fun <T> validate(crossinline block: ValidationError.Builder.() -> T): T {
-    val result: T
-    val error = ValidationError.Builder().apply {
-        result = block()
-    }.build()
-    if (error.errors.isNotEmpty())
-        throw error
-    return result
+inline fun <T> T.applyValidation(crossinline block: context(T) ValidationError.ValidationContext.() -> Unit): T = apply {
+    ValidationError
+        .ValidationContext().apply { block(this) }
+        .doThrow()
 }

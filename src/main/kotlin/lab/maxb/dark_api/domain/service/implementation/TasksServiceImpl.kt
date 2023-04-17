@@ -1,10 +1,8 @@
 package lab.maxb.dark_api.domain.service.implementation
 
-import com.google.common.io.ByteStreams.toByteArray
 import lab.maxb.dark_api.domain.exceptions.AccessDeniedException
 import lab.maxb.dark_api.domain.exceptions.NotFoundException
-import lab.maxb.dark_api.domain.exceptions.UnknownError
-import lab.maxb.dark_api.domain.exceptions.ValidationError
+import lab.maxb.dark_api.domain.exceptions.applyValidation
 import lab.maxb.dark_api.domain.gateway.RecognitionTasksGateway
 import lab.maxb.dark_api.domain.gateway.SolutionsGateway
 import lab.maxb.dark_api.domain.model.*
@@ -12,11 +10,8 @@ import lab.maxb.dark_api.domain.service.ImageService
 import lab.maxb.dark_api.domain.service.TasksService
 import lab.maxb.dark_api.domain.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.core.io.ByteArrayResource
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
-import org.springframework.web.multipart.MultipartFile
-import java.io.IOException
 import java.util.*
 
 @Service
@@ -53,36 +48,16 @@ class TasksServiceImpl @Autowired constructor(
         true
     } ?: false
 
-    override fun uploadImage(
-        account: ShortUserCredentials,
-        id: UUID,
-        file: MultipartFile
-    ): String {
-        val task = tasksGateway.findById(id) ?: throw NotFoundException.of("Task")
-        if (account.user.id != task.owner.id)
-            throw AccessDeniedException("Only task owner can perform this task")
-
-        if (task.images.count() >= RecognitionTask.MAX_IMAGES_COUNT)
-            throw ValidationError("Images amount exceeded (${RecognitionTask.MAX_IMAGES_COUNT})")
-
-        return try {
-            val fileName = imageService.save(file)
-            val newImagesList = task.images.toMutableList().apply {
-                add(fileName)
+    override fun add(task: RecognitionTask): RecognitionTask {
+        val validModel = task.validate()
+        applyValidation {
+            task.images.forEach {
+                if (!imageService.exists(it))
+                    addError("Image $it unavailable")
             }
-            tasksGateway.save(task.copy(images = newImagesList.toList()))
-            fileName
-        } catch (e: IOException) {
-            e.printStackTrace()
-            throw UnknownError(e.message ?: "No extra details")
         }
+        return tasksGateway.save(validModel)
     }
-
-    override fun downloadImage(path: String) = imageService.get(path)?.use {
-        ByteArrayResource(toByteArray(it))
-    } ?: throw NotFoundException.of("Image")
-
-    override fun add(task: RecognitionTask) = tasksGateway.save(task)
 
     override fun solve(
         account: ShortUserCredentials,

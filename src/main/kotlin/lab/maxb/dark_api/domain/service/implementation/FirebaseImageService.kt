@@ -62,6 +62,8 @@ class FirebaseImageService @Autowired constructor(
         Channels.newInputStream(it)
     }
 
+    override fun exists(name: String) = bucket.get(name) != null
+
     @Throws(IOException::class)
     override fun delete(name: String) {
         if (name.isBlank())
