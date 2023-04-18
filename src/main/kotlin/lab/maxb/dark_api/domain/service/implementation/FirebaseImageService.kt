@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
+import org.springframework.context.annotation.Profile
 import org.springframework.context.event.EventListener
 import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils
@@ -22,6 +23,7 @@ import java.nio.channels.Channels
 import javax.imageio.ImageIO
 
 
+@Profile("!test")
 @Service
 class FirebaseImageService @Autowired constructor(
     private var properties: Properties,
@@ -72,6 +74,7 @@ class FirebaseImageService @Autowired constructor(
         blob.delete()
     }
 
+    @Profile("!test")
     @ConfigurationProperties(prefix = "firebase")
     @ConstructorBinding
     data class Properties(
@@ -92,6 +95,7 @@ class FirebaseImageService @Autowired constructor(
     }
 }
 
+@Profile("!test")
 @ConfigurationProperties(prefix = "firebase.credential")
 @ConstructorBinding
 data class FirebaseCredential(
