@@ -6,6 +6,6 @@ data class Solution(
     val answer: String,
     val rating: Int = 1,
     val user: User,
-    val taskId: UUID,
+    val task: RecognitionTask,
     val id: UUID = randomUUID,
 )

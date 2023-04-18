@@ -12,7 +12,7 @@ interface RecognitionTaskDAO : JpaRepository<RecognitionTaskLocalDTO?, UUID?> {
     @Query(value = """SELECT task FROM RecognitionTaskLocalDTO task
          WHERE task.owner.id <> ?1 AND task.reviewed = true
          AND NOT EXISTS(SELECT 1 FROM SolutionLocalDTO solution 
-         WHERE solution.taskId = task.id AND solution.user.id = ?1) 
+         WHERE solution.task.id = task.id AND solution.user.id = ?1) 
          GROUP BY task.id""")
     fun findTasksForUser(userId: UUID, pageable: Pageable): List<RecognitionTaskLocalDTO>
 

@@ -19,12 +19,8 @@ class SolutionLocalDTO(
     var user: UserLocalDTO? = null,
 
     @JoinColumn(name = "task", nullable = false)
-    @ManyToOne(targetEntity = RecognitionTaskLocalDTO::class, fetch = FetchType.LAZY)
-    @JsonIgnore
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     var task: RecognitionTaskLocalDTO? = null,
-
-    @Column(name = "task", insertable = false, updatable = false, nullable = false)
-    var taskId: UUID? = null,
 
     @Id
     @GeneratedValue
@@ -36,7 +32,7 @@ fun Solution.toLocal() = SolutionLocalDTO(
     answer = answer,
     rating = rating,
     user = user.toLocal(),
-    taskId = taskId,
+    task = task.toLocal(),
     id = id,
 )
 
@@ -44,6 +40,6 @@ fun SolutionLocalDTO.toDomain() = Solution(
     answer = answer!!,
     rating = rating,
     user = user!!.toDomain(),
-    taskId = taskId!!,
+    task = task!!.toDomain(),
     id = id,
 )

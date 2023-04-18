@@ -24,8 +24,8 @@ class ValidationError(
     }
 }
 
-inline fun <T> T.applyValidation(crossinline block: context(T) ValidationError.ValidationContext.() -> Unit): T = apply {
+inline fun <T> T.applyValidation(crossinline block: ValidationError.ValidationContext.() -> Unit): T = apply {
     ValidationError
-        .ValidationContext().apply { block(this) }
+        .ValidationContext().apply(block)
         .doThrow()
 }

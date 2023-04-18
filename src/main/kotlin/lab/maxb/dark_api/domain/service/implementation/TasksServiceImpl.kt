@@ -69,7 +69,7 @@ class TasksServiceImpl @Autowired constructor(
         return !solutionsGateway.existsByTaskIdAndUserId(id, account.user.id) &&
          (checkAnswer(task, answer)?.let { rating ->
             solutionsGateway.save(Solution(
-                answer, rating, account.user, task.id
+                answer, rating, account.user, task
             ))
             userService.addRating(account.user.id, rating)
             true
