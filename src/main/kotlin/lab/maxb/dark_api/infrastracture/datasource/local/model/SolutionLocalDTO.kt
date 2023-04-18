@@ -1,6 +1,5 @@
 package lab.maxb.dark_api.infrastracture.datasource.local.model
 
-import com.fasterxml.jackson.annotation.JsonIgnore
 import lab.maxb.dark_api.domain.model.Solution
 import lab.maxb.dark_api.domain.model.randomUUID
 import java.util.*
