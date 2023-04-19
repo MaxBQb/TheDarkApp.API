@@ -38,4 +38,5 @@ out/
 /images/
 /src/main/resources/secret.properties
 /dark_app_db/
+/dark_app_db_local/
 /.env

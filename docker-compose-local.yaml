@@ -1,9 +1,9 @@
 version: '3'
 services:
-  the-dark-app-db:
+  the-dark-app-db-local:
     image: postgres:latest
     volumes:
-      - ./dark_app_db:/var/lib/postgresql/data:rw
+      - ./dark_app_db_local:/var/lib/postgresql/data:rw
     environment:
       - POSTGRES_PASSWORD=$DB_PASSWORD
       - POSTGRES_USER=$DB_USERNAME
@@ -13,24 +13,18 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  the-dark-app:
-    image: maxbqb/the-dark-api:latest
+  the-dark-app-local:
+    build:
+      dockerfile: Dockerfile
     volumes:
       - ./src/main/resources/secret.properties:/secret.properties:rw
     environment:
-      - DB_HOST=the-dark-app-db
+      - DB_HOST=the-dark-app-db-local
       - DB_NAME=$DB_NAME
       - DB_USERNAME=$DB_USERNAME
       - DB_PASSWORD=$DB_PASSWORD
-      - spring.config.import=optional:secret.properties
     ports:
-      - "8080:8080"
+      - "8182:8080"
     depends_on:
-      the-dark-app-db:
+      the-dark-app-db-local:
         condition: service_healthy
-  watchtower:
-    image: containrrr/watchtower
-    container_name: watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --interval 30 the-dark-app
