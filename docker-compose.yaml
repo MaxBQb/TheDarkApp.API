@@ -14,6 +14,7 @@ services:
       timeout: 5s
       retries: 5
   the-dark-app:
+    container_name: the-dark-app
     image: maxbqb/the-dark-api:latest
     volumes:
       - ./src/main/resources/secret.properties:/secret.properties:rw
