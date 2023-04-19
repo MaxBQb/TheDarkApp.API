@@ -18,6 +18,8 @@ services:
   the-dark-app:
     build:
       dockerfile: Dockerfile
+    volumes:
+      - ./src/main/resources/secret.properties:/secret.properties:rw
     environment:
       - DB_HOST=the-dark-app-db
       - DB_NAME=$DB_NAME
