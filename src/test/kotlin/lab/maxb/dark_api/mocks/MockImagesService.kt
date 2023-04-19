@@ -1,7 +1,9 @@
 package lab.maxb.dark_api.mocks
 
+import lab.maxb.dark_api.domain.exceptions.NotFoundException
+import lab.maxb.dark_api.domain.exceptions.ValidationError
 import lab.maxb.dark_api.domain.model.randomUUID
-import lab.maxb.dark_api.domain.service.ImageService
+import lab.maxb.dark_api.domain.service.ImagesService
 import org.springframework.context.annotation.Primary
 import org.springframework.stereotype.Service
 import org.springframework.util.StringUtils
@@ -13,7 +15,7 @@ import javax.imageio.ImageIO
 
 @Primary
 @Service
-class MockImageService : ImageService {
+class MockImagesService : ImagesService {
     private val storage = mutableMapOf<String, ByteArray>()
     override fun getUrl(name: String) = name
 
@@ -32,15 +34,17 @@ class MockImageService : ImageService {
         return name
     }
 
-    override fun get(name: String) = storage[name]?.inputStream()
+    override fun get(name: String) = storage.getOrElse(name){
+        throw NotFoundException.of("Image")
+    }.inputStream()
 
     override fun exists(name: String) = storage.contains(name)
 
     @Throws(IOException::class)
     override fun delete(name: String) {
         if (name.isBlank())
-            throw IOException("invalid file name")
-        storage.remove(name)
+            throw ValidationError("Invalid file name")
+        storage.remove(name) ?: throw NotFoundException.of("Image")
     }
 
     val String.extension get() = StringUtils.getFilenameExtension(this) ?: ""

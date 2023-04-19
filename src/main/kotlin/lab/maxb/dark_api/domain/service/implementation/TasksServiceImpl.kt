@@ -6,7 +6,7 @@ import lab.maxb.dark_api.domain.exceptions.applyValidation
 import lab.maxb.dark_api.domain.gateway.RecognitionTasksGateway
 import lab.maxb.dark_api.domain.gateway.SolutionsGateway
 import lab.maxb.dark_api.domain.model.*
-import lab.maxb.dark_api.domain.service.ImageService
+import lab.maxb.dark_api.domain.service.ImagesService
 import lab.maxb.dark_api.domain.service.TasksService
 import lab.maxb.dark_api.domain.service.UserService
 import org.springframework.beans.factory.annotation.Autowired
@@ -19,7 +19,7 @@ class TasksServiceImpl @Autowired constructor(
     private val tasksGateway: RecognitionTasksGateway,
     private val solutionsGateway: SolutionsGateway,
     private val userService: UserService,
-    private val imageService: ImageService,
+    private val imagesService: ImagesService,
 ) : TasksService {
 
     override fun getAvailable(account: ShortUserCredentials, pageable: Pageable)
@@ -40,7 +40,7 @@ class TasksServiceImpl @Autowired constructor(
         val task = tasksGateway.findById(id) ?: throw NotFoundException.of("Task")
         if (!isAllowed && !task.reviewed) {
             tasksGateway.findById(id)?.images?.forEach { path ->
-                runCatching { imageService.delete(path) }
+                runCatching { imagesService.delete(path) }
             }
             tasksGateway.deleteById(id)
         } else
@@ -51,7 +51,7 @@ class TasksServiceImpl @Autowired constructor(
         val validModel = task.validate()
         applyValidation {
             task.images.forEach {
-                if (!imageService.exists(it))
+                if (!imagesService.exists(it))
                     addError("Image $it unavailable")
             }
         }

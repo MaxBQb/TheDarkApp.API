@@ -7,7 +7,7 @@ import lab.maxb.dark_api.domain.exceptions.NotFoundException
 import lab.maxb.dark_api.domain.exceptions.ValidationError
 import lab.maxb.dark_api.domain.model.*
 import lab.maxb.dark_api.domain.service.AuthService
-import lab.maxb.dark_api.domain.service.ImageService
+import lab.maxb.dark_api.domain.service.ImagesService
 import lab.maxb.dark_api.domain.service.TasksService
 import lab.maxb.dark_api.domain.service.UserService
 import lab.maxb.dark_api.infrastracture.configuration.db.DatabaseFiller
@@ -26,7 +26,7 @@ import java.awt.image.BufferedImage
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class DarkApiApplicationTests @Autowired constructor(
     private val authService: AuthService,
-    private val imageService: ImageService,
+    private val imagesService: ImagesService,
     private val userService: UserService,
     private val tasksService: TasksService,
     private val fillerConfig: DatabaseFiller.Properties,
@@ -37,7 +37,7 @@ class DarkApiApplicationTests @Autowired constructor(
 
     @BeforeAll
     fun setUp() {
-        image = imageService.save(
+        image = imagesService.save(
             BufferedImage(
                 1, 1,
                 BufferedImage.TYPE_INT_RGB
@@ -124,7 +124,7 @@ class DarkApiApplicationTests @Autowired constructor(
 
     @Test
     fun taskDeclined() {
-        val image2 = imageService.save(
+        val image2 = imagesService.save(
             BufferedImage(
                 1, 1,
                 BufferedImage.TYPE_INT_RGB
@@ -136,6 +136,6 @@ class DarkApiApplicationTests @Autowired constructor(
         assertThrows<NotFoundException> {
             tasksService.getTask(ShortUserCredentials(user1, Role.MODERATOR), saved.id)
         }
-        assertEquals(false, imageService.exists(image2))
+        assertEquals(false, imagesService.exists(image2))
     }
 }

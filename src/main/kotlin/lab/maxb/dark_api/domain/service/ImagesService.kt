@@ -6,11 +6,10 @@ import java.io.IOException
 import java.io.InputStream
 
 
-interface ImageService {
+interface ImagesService {
     fun getUrl(name: String): String
 
-    @Throws(IOException::class)
-    fun get(name: String): InputStream?
+    fun get(name: String): InputStream
 
     fun exists(name: String): Boolean
 
@@ -20,6 +19,5 @@ interface ImageService {
     @Throws(IOException::class)
     fun save(bufferedImage: BufferedImage, originalFileName: String): String
 
-    @Throws(IOException::class)
     fun delete(name: String)
 }

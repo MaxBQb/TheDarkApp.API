@@ -5,8 +5,10 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import com.google.firebase.cloud.StorageClient
+import lab.maxb.dark_api.domain.exceptions.NotFoundException
+import lab.maxb.dark_api.domain.exceptions.ValidationError
 import lab.maxb.dark_api.domain.model.randomUUID
-import lab.maxb.dark_api.domain.service.ImageService
+import lab.maxb.dark_api.domain.service.ImagesService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.ConfigurationProperties
@@ -25,10 +27,10 @@ import javax.imageio.ImageIO
 
 @Profile("!test")
 @Service
-class FirebaseImageService @Autowired constructor(
+class FirebaseImagesService @Autowired constructor(
     private var properties: Properties,
     private var firebaseCredential: FirebaseCredential,
-) : ImageService {
+) : ImagesService {
     private val bucket get() = StorageClient.getInstance().bucket()
 
     @EventListener
@@ -62,15 +64,14 @@ class FirebaseImageService @Autowired constructor(
 
     override fun get(name: String) = bucket.get(name)?.reader()?.let {
         Channels.newInputStream(it)
-    }
+    } ?: throw NotFoundException.of("Image")
 
     override fun exists(name: String) = bucket.get(name) != null
 
-    @Throws(IOException::class)
     override fun delete(name: String) {
         if (name.isBlank())
-            throw IOException("invalid file name")
-        val blob = bucket[name] ?: throw IOException("file not found")
+            throw ValidationError("Invalid file name")
+        val blob = bucket[name] ?: throw NotFoundException.of("Image")
         blob.delete()
     }
 
