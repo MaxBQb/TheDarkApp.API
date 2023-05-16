@@ -2,7 +2,7 @@ package lab.maxb.dark_api.domain.service.implementation
 
 import lab.maxb.dark_api.domain.exceptions.AccessDeniedException
 import lab.maxb.dark_api.domain.exceptions.NotFoundException
-import lab.maxb.dark_api.domain.exceptions.applyValidation
+import lab.maxb.dark_api.domain.exceptions.withValidation
 import lab.maxb.dark_api.domain.gateway.RecognitionTasksGateway
 import lab.maxb.dark_api.domain.gateway.SolutionsGateway
 import lab.maxb.dark_api.domain.model.*
@@ -49,7 +49,7 @@ class TasksServiceImpl @Autowired constructor(
 
     override fun add(task: RecognitionTask): RecognitionTask {
         val validModel = task.validate()
-        applyValidation {
+        withValidation {
             task.images.forEach {
                 if (!imagesService.exists(it))
                     addError("Image $it unavailable")
