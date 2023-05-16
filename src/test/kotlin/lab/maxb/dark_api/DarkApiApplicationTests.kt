@@ -6,10 +6,7 @@ import lab.maxb.dark_api.domain.exceptions.AccessDeniedException
 import lab.maxb.dark_api.domain.exceptions.NotFoundException
 import lab.maxb.dark_api.domain.exceptions.ValidationError
 import lab.maxb.dark_api.domain.model.*
-import lab.maxb.dark_api.domain.service.AuthService
-import lab.maxb.dark_api.domain.service.ImagesService
-import lab.maxb.dark_api.domain.service.TasksService
-import lab.maxb.dark_api.domain.service.UserService
+import lab.maxb.dark_api.domain.service.*
 import lab.maxb.dark_api.infrastracture.configuration.db.DatabaseFiller
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeAll
@@ -18,6 +15,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.data.domain.Pageable
 import org.springframework.test.context.ActiveProfiles
 import java.awt.image.BufferedImage
 
@@ -29,6 +27,7 @@ class DarkApiApplicationTests @Autowired constructor(
     private val imagesService: ImagesService,
     private val userService: UserService,
     private val tasksService: TasksService,
+    private val articlesService: ArticlesService,
     private val fillerConfig: DatabaseFiller.Properties,
 ) {
     lateinit var image: String
@@ -137,5 +136,44 @@ class DarkApiApplicationTests @Autowired constructor(
             tasksService.getTask(ShortUserCredentials(user1, Role.MODERATOR), saved.id)
         }
         assertEquals(false, imagesService.exists(image2))
+    }
+
+
+    @Test
+    fun articleCreationSuccess() {
+        val article = Article("some title", "Some description", user1)
+        val saved = articlesService.add(article)
+        val expected = article.copy(id = saved.id)
+        assertEquals(saved, expected)
+        assertEquals(true, articlesService.getAll(Pageable.unpaged()).isNotEmpty())
+        val stored = articlesService.findById(saved.id)
+        assertEquals(expected, stored)
+    }
+
+    @Test
+    fun articleCreationError() {
+        val longTitle = buildString {
+            repeat(90) {
+                append("some title")
+            }
+        }
+        val invalidArticle = Article(longTitle, "Some description", user1)
+        assertThrows<ValidationError> { articlesService.add(invalidArticle) }
+    }
+
+    @Test
+    fun articleUpdateSuccess() {
+        val article = Article("some title", "Some description", user1)
+        val id = articlesService.add(article).id
+        val expected = article.copy(id = id, title="another title")
+        articlesService.update(expected)
+        val stored = articlesService.findById(id)
+        assertEquals(expected, stored)
+    }
+
+    @Test
+    fun articleUpdateError() {
+        val article = Article("some title", "Some description", user1)
+        assertThrows<NotFoundException> { articlesService.update(article) }
     }
 }
