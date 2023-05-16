@@ -9,11 +9,9 @@ import lab.maxb.dark_api.domain.model.User
 class RecognitionTaskNetworkCreationDTO(
     var names: Set<String>,
     var images: List<String>,
-) {
-    lateinit var owner: User
-}
+)
 
-fun RecognitionTaskNetworkCreationDTO.toDomain() = RecognitionTask(
+fun RecognitionTaskNetworkCreationDTO.toDomain(owner: User) = RecognitionTask(
     names = names,
     images = images,
     owner = owner,

@@ -62,8 +62,7 @@ class TasksController @Autowired constructor(
         @RequestBody task: RecognitionTaskNetworkCreationDTO
     ): RecognitionTaskNetworkDTO? {
         val credentials = authService.extractCredentials(auth)
-        task.owner = credentials.user
-        return service.add(task.toDomain()).toNetworkDTO()
+        return service.add(task.toDomain(credentials.user)).toNetworkDTO()
     }
 
     @PostMapping("{id}/solutions/")
