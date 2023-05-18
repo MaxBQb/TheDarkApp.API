@@ -11,7 +11,7 @@ class ArticleLocalDTO(
     @Column(nullable = false)
     var title: String = "Untitled",
 
-    @Column(nullable = false)
+    @Column(nullable = false, length = Article.MAX_BODY_LENGTH)
     var body: String = "No content",
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
